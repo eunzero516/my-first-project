@@ -132,6 +132,18 @@
     .duration-select select {
         width: 100%;
     }
+    /* 음주 종료 시각 자동 표시 스타일 */
+    .end-time-display {
+        background: #F0F5FF; 
+        padding: 12px 14px; 
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--primary);
+        text-align: center;
+        margin-top: 10px;
+        border: 1px solid var(--primary);
+    }
 
 
     /* 버튼 (플랫 스타일) */
@@ -315,25 +327,30 @@
         <section class="card" id="timeInputCard" aria-label="측정 시간 입력">
             <div class="section-title">측정 시간</div>
             
-            <label class="small">측정 시작 시각 (음주 종료 시점)</label>
+            <label class="small">음주 시작 시각 (디폴트: 현재 시각)</label>
             <div class="time-inputs" style="margin-bottom: 15px;">
                 <div class="time-row time-row-date">
-                    <select id="inputYear" aria-label="년"></select>
-                    <select id="inputMonth" aria-label="월"></select>
-                    <select id="inputDay" aria-label="일"></select>
+                    <select id="inputYear" aria-label="시작 년"></select>
+                    <select id="inputMonth" aria-label="시작 월"></select>
+                    <select id="inputDay" aria-label="시작 일"></select>
                 </div>
                 <div class="time-row time-row-time">
-                    <select id="inputHour" aria-label="시"></select>
-                    <select id="inputMinute" aria-label="분"></select>
+                    <select id="inputHour" aria-label="시작 시"></select>
+                    <select id="inputMinute" aria-label="시작 분"></select>
                 </div>
             </div>
             
             <label class="small" for="inputDrinkingDuration">총 음주 시간</label>
-            <div class="duration-select">
+            <div class="duration-select" style="margin-bottom: 15px;">
                 <select id="inputDrinkingDuration" aria-label="총 음주 시간"></select>
             </div>
+            
+            <label class="small">음주 종료 시각</label>
+            <div id="endTimeDisplay" class="end-time-display">
+                -- 계산 중 --
+            </div>
             <div class="muted-note" style="margin-top: 6px;">
-                *음주 시간이 길수록 해독 시간이 짧아집니다.
+                *음주 시간이 길수록 해독 시간이 짧아집니다. (종료 시각 기준)
             </div>
         </section>
         <button id="calculateBtn" class="btn" type="button" aria-pressed="false">측정하기</button>
@@ -513,6 +530,7 @@
     const inputHour = document.getElementById('inputHour');
     const inputMinute = document.getElementById('inputMinute');
     const inputDrinkingDuration = document.getElementById('inputDrinkingDuration'); // 총 음주 시간 필드
+    const endTimeDisplay = document.getElementById('endTimeDisplay'); // 음주 종료 시각 표시 필드
 
 
     /***********************
@@ -522,8 +540,9 @@
 
     function initApp(){
       updateUI('soju');
-      populateTimeInputs(); // 시간 입력 필드 초기화
-      populateDurationInput(); // 총 음주 시간 필드 초기화
+      populateTimeInputs(); 
+      populateDurationInput(); 
+      updateEndTime(); // 초기 음주 종료 시각 계산 및 표시
 
       // 계산기 입력 이벤트 리스너
       document.querySelectorAll('input[name="drinkType"]').forEach(r => {
@@ -535,6 +554,14 @@
         updateUnitPlaceholder();
       });
       calculateBtn.addEventListener('click', calculateDetoxTime);
+
+      // 시간 관련 필드 변경 시 음주 종료 시각 업데이트
+      inputYear.addEventListener('change', () => { updateDaysInMonth(); updateEndTime(); });
+      inputMonth.addEventListener('change', () => { updateDaysInMonth(); updateEndTime(); });
+      inputDay.addEventListener('change', updateEndTime);
+      inputHour.addEventListener('change', updateEndTime);
+      inputMinute.addEventListener('change', updateEndTime);
+      inputDrinkingDuration.addEventListener('change', updateEndTime);
 
       // 저널 리스트 클릭 이벤트 리스너
       document.querySelectorAll('.journal-item').forEach(item => {
@@ -553,16 +580,13 @@
       const initialHash = window.location.hash.substring(1) || 'calculator';
       showTab(initialHash);
       
-      // 날짜/시간 선택 변경 시 날짜 유효성 검사 (월/일)
-      inputYear.addEventListener('change', updateDaysInMonth);
-      inputMonth.addEventListener('change', updateDaysInMonth);
     }
     
     /***********************
      * 시간 입력 필드 로직 
      ***********************/
      function populateTimeInputs() {
-        // 현재 시각 대신 2025년 12월 15일 13시 59분 KST를 기준으로 함
+        // 음주 시작 시각을 현재 시각으로 디폴트 설정
         const now = new Date(); 
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth() + 1; 
@@ -612,7 +636,7 @@
         }
     }
     
-    // 총 음주 시간 필드 초기화 (새로 추가)
+    // 총 음주 시간 필드 초기화
     function populateDurationInput() {
         inputDrinkingDuration.innerHTML = '';
         for (let h = 1; h <= 6; h++) {
@@ -630,7 +654,6 @@
         const month = parseInt(inputMonth.value);
         const currentSelectedDay = parseInt(inputDay.value) || 1;
         
-        // 해당 월의 마지막 날짜를 구함 (JavaScript Date 객체의 트릭)
         const daysInMonth = new Date(year, month, 0).getDate();
 
         inputDay.innerHTML = '';
@@ -639,16 +662,16 @@
             option.value = d;
             option.textContent = `${d}일`;
             
-            // 기존에 선택된 날짜가 유효하면 유지, 아니면 1일 선택
             if (d === currentSelectedDay || (d === daysInMonth && currentSelectedDay > daysInMonth)) {
                 option.selected = true;
             }
             inputDay.appendChild(option);
         }
+        updateEndTime();
     }
 
-    // 입력된 시각을 Date 객체로 파싱하는 함수
-    function parseInputTime() {
+    // 입력된 음주 시작 시각을 Date 객체로 파싱하는 함수
+    function parseStartTime() {
         const y = parseInt(inputYear.value);
         const m = parseInt(inputMonth.value) - 1; // JS month is 0-indexed
         const d = parseInt(inputDay.value);
@@ -656,6 +679,23 @@
         const min = parseInt(inputMinute.value);
         
         return new Date(y, m, d, h, min, 0);
+    }
+    
+    // 음주 종료 시각을 계산하고 표시하는 함수 (새로 추가)
+    function updateEndTime() {
+        const startTime = parseStartTime();
+        const durationHours = parseFloat(inputDrinkingDuration.value);
+        
+        if (isNaN(startTime.getTime()) || isNaN(durationHours)) {
+            endTimeDisplay.textContent = "-- 오류 --";
+            return;
+        }
+
+        const durationMs = durationHours * 3600 * 1000;
+        const endTime = new Date(startTime.getTime() + durationMs);
+        
+        // 음주 종료 시각 표시 (분 단위 포함)
+        endTimeDisplay.textContent = formatKoreanDatetime(endTime, false); 
     }
 
 
@@ -763,7 +803,7 @@
         displayML.textContent = Math.round(totalML);
     }
 
-    // 시각 포맷 함수
+    // 시각 포맷 함수 (결과 출력을 위해 수정)
     function formatKoreanDatetime(date, isSentence = false){
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
@@ -798,28 +838,33 @@
         const unitML = info.units[unit] || 0;
         const totalVolumeML = (isNaN(unitVolume) || unitVolume <= 0) ? 0 : unitVolume * unitML;
         
-        const startTime = parseInputTime();
-        // 총 음주 시간 (시간 단위)
+        // 입력된 음주 시간 정보
+        const startTime = parseStartTime();
         const drinkingDurationHours = parseFloat(inputDrinkingDuration.value); 
+        
+        // 음주 종료 시각을 계산하여 now 변수에 저장 (해독 시작 시점)
+        const durationMs = drinkingDurationHours * 3600 * 1000;
+        const now = new Date(startTime.getTime() + durationMs);
 
         if(isNaN(P) || P <= 0){ showError("체중을 정확히 입력해주세요 (kg)."); return; }
         if(isNaN(alcoholContent) || alcoholContent < 0){ showError("도수를 정확히 입력해주세요 (%)."); return; }
         if(totalVolumeML <= 0){ showError("섭취량을 올바르게 입력해주세요."); return; }
         if(isNaN(drinkingDurationHours) || drinkingDurationHours <= 0){ showError("총 음주 시간을 올바르게 입력해주세요."); return; }
+        if(isNaN(now.getTime())){ showError("유효한 음주 시작 시각을 입력해주세요."); return; }
 
 
         const R = (gender === 'male') ? 0.86 : 0.64;
         const pureAlcoholGrams = totalVolumeML * (alcoholContent / 100) * ALCOHOL_SPECIFIC_GRAVITY * ABSORPTION_RATE;
-        const C0 = pureAlcoholGrams / (P * R * 10); // 최대 잠재 BAC
+        const C0 = pureAlcoholGrams / (P * R * 10); 
 
         // 장시간 음주에 따른 BAC 감소분 계산 (이미 제거된 알코올)
+        // **주의: C0는 이론적 최대 BAC이므로, 제거 시간을 (음주 종료 시각 - 음주 시작 시각)으로 계산해야 함.**
         const alcoholRemovedDuringDrinking = BETA * drinkingDurationHours;
         
         // 실제 해독이 시작될 BAC (peak BAC)
         let C_peak = C0 - alcoholRemovedDuringDrinking; 
 
         if (C_peak < 0) {
-            // 음주하는 동안 알코올이 모두 제거되어 BAC가 0 아래로 내려갈 경우
             C_peak = 0.0001; 
         }
 
@@ -831,16 +876,14 @@
         const minutesPart = Math.round((T_hours - hoursPart) * 60);
 
         const detoxDurationMs = T_hours * 3600 * 1000;
-        const completionTime = new Date(startTime.getTime() + detoxDurationMs);
+        const completionTime = new Date(now.getTime() + detoxDurationMs);
         
-        const now = startTime; 
-
         renderResult({
-            now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak
+            now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime
         });
     }
 
-    function renderResult({now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak}){
+    function renderResult({now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime}){
         resultInitial.style.display = 'none';
         resultOutput.style.display = 'block';
 
@@ -860,7 +903,8 @@
                 <div class="sub" style="font-size: 1.1rem; line-height: 1.5;">${completionDisplay}</div>
 
                 <div class="meta" style="margin-top:15px;">
-                    <div><strong>측정 시작 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(now, false)}</div></div>
+                    <div><strong>음주 시작 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(startTime, false)}</div></div>
+                    <div><strong>음주 종료 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(now, false)}</div></div>
                     <div><strong>순수 알코올</strong><div style="color:#4B5860">${pureAlcoholGrams.toFixed(1)} g</div></div>
                     <div><strong>최대 BAC(추정)</strong><div style="color:#4B5860">${(C_peak).toFixed(4)}%</div></div>
                 </div>
