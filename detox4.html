@@ -292,12 +292,19 @@
                 <div class="radio-group" id="drinkTypeGroup" role="radiogroup" aria-label="주종 선택">
                     <input class="radio-input" type="radio" id="drink-soju" name="drinkType" value="soju" checked>
                     <label class="radio-label" for="drink-soju">소주</label>
+                    
                     <input class="radio-input" type="radio" id="drink-beer" name="drinkType" value="beer">
                     <label class="radio-label" for="drink-beer">맥주</label>
+                    
+                    <input class="radio-input" type="radio" id="drink-makgeolli" name="drinkType" value="makgeolli">
+                    <label class="radio-label" for="drink-makgeolli">막걸리</label>
+                    
                     <input class="radio-input" type="radio" id="drink-wine" name="drinkType" value="wine">
                     <label class="radio-label" for="drink-wine">와인</label>
+                    
                     <input class="radio-input" type="radio" id="drink-whiskey" name="drinkType" value="whiskey">
                     <label class="radio-label" for="drink-whiskey">위스키</label>
+                    
                     <input class="radio-input" type="radio" id="drink-custom" name="drinkType" value="custom">
                     <label class="radio-label" for="drink-custom">기타</label>
                 </div>
@@ -442,6 +449,8 @@
     const DRINK_DATA = {
       soju: { degree: 16.5, units: {'잔':50,'병':360,'mL':1} },
       beer: { degree: 5.0, units: {'캔(500mL)':500,'캔(350mL)':350,'병(500mL)':500,'병(330mL)':330,'잔(500mL)':500,'잔(350mL)':350,'mL':1} },
+      // 막걸리 데이터 추가
+      makgeolli: { degree: 6.0, units: {'병(750mL)': 750, '캔(350mL)': 350, 'mL': 1} },
       wine: { degree: 13.0, units: {'잔':125,'병':750,'mL':1} },
       whiskey: { degree: 40.0, units: {'샷':30,'병':750,'mL':1} },
       custom: { degree: 0, units: {'mL':1} }
@@ -681,7 +690,7 @@
         return new Date(y, m, d, h, min, 0);
     }
     
-    // 음주 종료 시각을 계산하고 표시하는 함수 (새로 추가)
+    // 음주 종료 시각을 계산하고 표시하는 함수
     function updateEndTime() {
         const startTime = parseStartTime();
         const durationHours = parseFloat(inputDrinkingDuration.value);
@@ -803,7 +812,7 @@
         displayML.textContent = Math.round(totalML);
     }
 
-    // 시각 포맷 함수 (결과 출력을 위해 수정)
+    // 시각 포맷 함수
     function formatKoreanDatetime(date, isSentence = false){
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
@@ -819,10 +828,8 @@
         const baseFormat = `${year}년 ${month}월 ${day}일 ${ampm} ${hour}시 ${minuteStr}`;
         
         if (isSentence) {
-            // 문장 출력 시는 '분' 단위를 생략하고 반환
             return baseFormat; 
         } else {
-            // 기본 출력 시는 '분' 단위까지 포함
             return `${baseFormat}분`;
         }
     }
@@ -858,7 +865,6 @@
         const C0 = pureAlcoholGrams / (P * R * 10); 
 
         // 장시간 음주에 따른 BAC 감소분 계산 (이미 제거된 알코올)
-        // **주의: C0는 이론적 최대 BAC이므로, 제거 시간을 (음주 종료 시각 - 음주 시작 시각)으로 계산해야 함.**
         const alcoholRemovedDuringDrinking = BETA * drinkingDurationHours;
         
         // 실제 해독이 시작될 BAC (peak BAC)
