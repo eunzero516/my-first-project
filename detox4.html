@@ -111,12 +111,13 @@
     .volume .qty { flex:1; }
     .ml-display { text-align:right; font-size:0.95rem; color:var(--muted); margin-top:6px; }
 
-    /* 시간 입력 필드 레이아웃 (수정된 부분) */
+    /* 시간 입력 필드 레이아웃 */
     .time-inputs {
         display: flex;
         flex-direction: column; /* 세로로 두 행을 배치 */
         gap: 8px; /* 행 간격 */
         margin-top: 10px;
+        margin-bottom: 15px; /* 각 시각 그룹 아래 여백 */
     }
     .time-row {
         display: flex;
@@ -129,20 +130,18 @@
         min-width: 50px;
         text-align: center;
     }
-    .duration-select select {
-        width: 100%;
-    }
-    /* 음주 종료 시각 자동 표시 스타일 */
-    .end-time-display {
+    /* 총 음주 시간 자동 계산 표시 스타일 (첨부 이미지 스타일) */
+    .total-duration-display {
         background: #F0F5FF; 
         padding: 12px 14px; 
-        border-radius: 10px;
+        border-radius: 14px; /* 카드의 radius와 맞춤 */
         font-weight: 700;
         font-size: 1rem;
         color: var(--primary);
         text-align: center;
         margin-top: 10px;
         border: 1px solid var(--primary);
+        box-shadow: 0 4px 10px rgba(89, 137, 247, 0.1);
     }
 
 
@@ -350,29 +349,37 @@
             <div class="section-title">측정 시간</div>
             
             <label class="small">음주 시작 시각 (디폴트: 현재 시각)</label>
-            <div class="time-inputs" style="margin-bottom: 15px;">
+            <div class="time-inputs">
                 <div class="time-row time-row-date">
-                    <select id="inputYear" aria-label="시작 년"></select>
-                    <select id="inputMonth" aria-label="시작 월"></select>
-                    <select id="inputDay" aria-label="시작 일"></select>
+                    <select id="inputYearStart" aria-label="시작 년"></select>
+                    <select id="inputMonthStart" aria-label="시작 월"></select>
+                    <select id="inputDayStart" aria-label="시작 일"></select>
                 </div>
                 <div class="time-row time-row-time">
-                    <select id="inputHour" aria-label="시작 시"></select>
-                    <select id="inputMinute" aria-label="시작 분"></select>
+                    <select id="inputHourStart" aria-label="시작 시"></select>
+                    <select id="inputMinuteStart" aria-label="시작 분"></select>
                 </div>
             </div>
             
-            <label class="small" for="inputDrinkingDuration">총 음주 시간</label>
-            <div class="duration-select" style="margin-bottom: 15px;">
-                <select id="inputDrinkingDuration" aria-label="총 음주 시간"></select>
+            <label class="small">음주 종료 시각 (디폴트: 현재 시각)</label>
+            <div class="time-inputs">
+                <div class="time-row time-row-date">
+                    <select id="inputYearEnd" aria-label="종료 년"></select>
+                    <select id="inputMonthEnd" aria-label="종료 월"></select>
+                    <select id="inputDayEnd" aria-label="종료 일"></select>
+                </div>
+                <div class="time-row time-row-time">
+                    <select id="inputHourEnd" aria-label="종료 시"></select>
+                    <select id="inputMinuteEnd" aria-label="종료 분"></select>
+                </div>
             </div>
             
-            <label class="small">음주 종료 시각</label>
-            <div id="endTimeDisplay" class="end-time-display">
+            <label class="small">총 음주 시간</label>
+            <div id="totalDurationDisplay" class="total-duration-display">
                 -- 계산 중 --
             </div>
             <div class="muted-note" style="margin-top: 6px;">
-                *음주 시간이 길수록 해독 시간이 짧아집니다. (종료 시각 기준)
+                *총 음주 시간이 길수록 해독 시간이 짧아집니다. (종료 시각 기준)
             </div>
         </section>
         <button id="calculateBtn" class="btn" type="button" aria-pressed="false">측정하기</button>
@@ -471,18 +478,17 @@
     const DRINK_DATA = {
       soju: { degree: 16.5, units: {'잔':50,'병':360,'mL':1} },
       beer: { degree: 5.0, units: {'캔(500mL)':500,'캔(350mL)':350,'병(500mL)':500,'병(330mL)':330,'잔(500mL)':500,'잔(350mL)':350,'mL':1} },
-      // 막걸리 데이터 추가
       makgeolli: { degree: 6.0, units: {'병(750mL)': 750, '캔(350mL)': 350, 'mL': 1} },
       wine: { degree: 13.0, units: {'잔':125,'병':750,'mL':1} },
       whiskey: { degree: 40.0, units: {'샷':30,'병':750,'mL':1} },
       custom: { degree: 0, units: {'mL':1} }
     };
 
-    // 저널 콘텐츠 데이터
+    // 저널 콘텐츠 데이터 (이전과 동일)
     const JOURNAL_CONTENT = {
         detoxMyths: {
             title: "해장 효과, 진짜 vs 오해",
-            icon: "😵‍💫", // 아이콘 변경
+            icon: "😵‍💫",
             html: `
                 <p>숙취가 심할수록 “뭔가 하면 나아질 것 같다”는 생각이 들지만, 일부 해장 방법은 오히려 해독을 늦출 수 있어요.</p>
                 
@@ -585,14 +591,20 @@
     const detailContent = document.getElementById('detailContent');
     const tabItems = document.querySelectorAll('.tab-item');
     
-    // 시간 입력 필드 DOM 요소
-    const inputYear = document.getElementById('inputYear');
-    const inputMonth = document.getElementById('inputMonth');
-    const inputDay = document.getElementById('inputDay');
-    const inputHour = document.getElementById('inputHour');
-    const inputMinute = document.getElementById('inputMinute');
-    const inputDrinkingDuration = document.getElementById('inputDrinkingDuration'); // 총 음주 시간 필드
-    const endTimeDisplay = document.getElementById('endTimeDisplay'); // 음주 종료 시각 표시 필드
+    // 시간 입력 필드 DOM 요소 (시작/종료 분리)
+    const inputYearStart = document.getElementById('inputYearStart');
+    const inputMonthStart = document.getElementById('inputMonthStart');
+    const inputDayStart = document.getElementById('inputDayStart');
+    const inputHourStart = document.getElementById('inputHourStart');
+    const inputMinuteStart = document.getElementById('inputMinuteStart');
+    
+    const inputYearEnd = document.getElementById('inputYearEnd');
+    const inputMonthEnd = document.getElementById('inputMonthEnd');
+    const inputDayEnd = document.getElementById('inputDayEnd');
+    const inputHourEnd = document.getElementById('inputHourEnd');
+    const inputMinuteEnd = document.getElementById('inputMinuteEnd');
+
+    const totalDurationDisplay = document.getElementById('totalDurationDisplay'); // 총 음주 시간 표시 필드
 
 
     /***********************
@@ -602,9 +614,9 @@
 
     function initApp(){
       updateUI('soju');
-      populateTimeInputs(); 
-      populateDurationInput(); 
-      updateEndTime(); // 초기 음주 종료 시각 계산 및 표시
+      populateTimeInputs('start');
+      populateTimeInputs('end'); 
+      updateDuration(); // 초기 총 음주 시간 계산 및 표시
 
       // 계산기 입력 이벤트 리스너
       document.querySelectorAll('input[name="drinkType"]').forEach(r => {
@@ -617,13 +629,19 @@
       });
       calculateBtn.addEventListener('click', calculateDetoxTime);
 
-      // 시간 관련 필드 변경 시 음주 종료 시각 업데이트
-      inputYear.addEventListener('change', () => { updateDaysInMonth(); updateEndTime(); });
-      inputMonth.addEventListener('change', () => { updateDaysInMonth(); updateEndTime(); });
-      inputDay.addEventListener('change', updateEndTime);
-      inputHour.addEventListener('change', updateEndTime);
-      inputMinute.addEventListener('change', updateEndTime);
-      inputDrinkingDuration.addEventListener('change', updateEndTime);
+      // 시간 관련 필드 변경 시 총 음주 시간 업데이트
+      inputYearStart.addEventListener('change', () => { updateDaysInMonth('start'); updateDuration(); });
+      inputMonthStart.addEventListener('change', () => { updateDaysInMonth('start'); updateDuration(); });
+      inputDayStart.addEventListener('change', updateDuration);
+      inputHourStart.addEventListener('change', updateDuration);
+      inputMinuteStart.addEventListener('change', updateDuration);
+
+      inputYearEnd.addEventListener('change', () => { updateDaysInMonth('end'); updateDuration(); });
+      inputMonthEnd.addEventListener('change', () => { updateDaysInMonth('end'); updateDuration(); });
+      inputDayEnd.addEventListener('change', updateDuration);
+      inputHourEnd.addEventListener('change', updateDuration);
+      inputMinuteEnd.addEventListener('change', updateDuration);
+
 
       // 저널 리스트 클릭 이벤트 리스너
       document.querySelectorAll('.journal-item').forEach(item => {
@@ -647,14 +665,20 @@
     /***********************
      * 시간 입력 필드 로직 
      ***********************/
-     function populateTimeInputs() {
-        // 음주 시작 시각을 현재 시각으로 디폴트 설정
+     function populateTimeInputs(type) {
+        // 음주 시작/종료 시각을 현재 시각으로 디폴트 설정
         const now = new Date(); 
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth() + 1; 
         const currentDay = now.getDate();
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
+        
+        const yearInput = document.getElementById(`inputYear${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const monthInput = document.getElementById(`inputMonth${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const dayInput = document.getElementById(`inputDay${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const hourInput = document.getElementById(`inputHour${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const minuteInput = document.getElementById(`inputMinute${type.charAt(0).toUpperCase() + type.slice(1)}`);
 
         // 1. 년 (5년 전부터 1년 후까지)
         for (let y = currentYear - 5; y <= currentYear + 1; y++) {
@@ -662,7 +686,7 @@
             option.value = y;
             option.textContent = `${y}년`;
             if (y === currentYear) option.selected = true;
-            inputYear.appendChild(option);
+            yearInput.appendChild(option);
         }
 
         // 2. 월
@@ -671,11 +695,11 @@
             option.value = m;
             option.textContent = `${m}월`;
             if (m === currentMonth) option.selected = true;
-            inputMonth.appendChild(option);
+            monthInput.appendChild(option);
         }
 
         // 3. 일 (월 선택에 따라 동적으로 채워짐)
-        updateDaysInMonth(); // 초기 일 설정
+        updateDaysInMonth(type); // 초기 일 설정
 
         // 4. 시 (00시 ~ 23시)
         for (let h = 0; h <= 23; h++) {
@@ -684,7 +708,7 @@
             option.value = h;
             option.textContent = `${hStr}시`;
             if (h === currentHour) option.selected = true;
-            inputHour.appendChild(option);
+            hourInput.appendChild(option);
         }
 
         // 5. 분 (00분 ~ 59분)
@@ -694,31 +718,23 @@
             option.value = min;
             option.textContent = `${minStr}분`;
             if (min === currentMinute) option.selected = true;
-            inputMinute.appendChild(option);
+            minuteInput.appendChild(option);
         }
     }
     
-    // 총 음주 시간 필드 초기화
-    function populateDurationInput() {
-        inputDrinkingDuration.innerHTML = '';
-        for (let h = 1; h <= 6; h++) {
-            const option = document.createElement('option');
-            option.value = h;
-            option.textContent = `${h}시간`;
-            if (h === 1) option.selected = true; // 디폴트 1시간
-            inputDrinkingDuration.appendChild(option);
-        }
-    }
-
     // 월에 따라 일 수를 업데이트하는 함수
-    function updateDaysInMonth() {
-        const year = parseInt(inputYear.value);
-        const month = parseInt(inputMonth.value);
-        const currentSelectedDay = parseInt(inputDay.value) || 1;
+    function updateDaysInMonth(type) {
+        const yearInput = document.getElementById(`inputYear${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const monthInput = document.getElementById(`inputMonth${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        const dayInput = document.getElementById(`inputDay${type.charAt(0).toUpperCase() + type.slice(1)}`);
+
+        const year = parseInt(yearInput.value);
+        const month = parseInt(monthInput.value);
+        const currentSelectedDay = parseInt(dayInput.value) || 1;
         
         const daysInMonth = new Date(year, month, 0).getDate();
 
-        inputDay.innerHTML = '';
+        dayInput.innerHTML = '';
         for (let d = 1; d <= daysInMonth; d++) {
             const option = document.createElement('option');
             option.value = d;
@@ -727,37 +743,78 @@
             if (d === currentSelectedDay || (d === daysInMonth && currentSelectedDay > daysInMonth)) {
                 option.selected = true;
             }
-            inputDay.appendChild(option);
+            dayInput.appendChild(option);
         }
-        updateEndTime();
+        updateDuration();
     }
 
-    // 입력된 음주 시작 시각을 Date 객체로 파싱하는 함수
-    function parseStartTime() {
-        const y = parseInt(inputYear.value);
-        const m = parseInt(inputMonth.value) - 1; // JS month is 0-indexed
-        const d = parseInt(inputDay.value);
-        const h = parseInt(inputHour.value);
-        const min = parseInt(inputMinute.value);
+    // 입력된 시각을 Date 객체로 파싱하는 함수
+    function parseTimeInput(type) {
+        const y = parseInt(document.getElementById(`inputYear${type}`).value);
+        const m = parseInt(document.getElementById(`inputMonth${type}`).value) - 1; 
+        const d = parseInt(document.getElementById(`inputDay${type}`).value);
+        const h = parseInt(document.getElementById(`inputHour${type}`).value);
+        const min = parseInt(document.getElementById(`inputMinute${type}`).value);
         
         return new Date(y, m, d, h, min, 0);
     }
     
-    // 음주 종료 시각을 계산하고 표시하는 함수
-    function updateEndTime() {
-        const startTime = parseStartTime();
-        const durationHours = parseFloat(inputDrinkingDuration.value);
+    // 총 음주 시간을 계산하고 표시하는 함수 (새로 추가/수정)
+    function updateDuration() {
+        const startTime = parseTimeInput('Start');
+        const endTime = parseTimeInput('End');
         
-        if (isNaN(startTime.getTime()) || isNaN(durationHours)) {
-            endTimeDisplay.textContent = "-- 오류 --";
+        if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+            totalDurationDisplay.textContent = "-- 오류 --";
             return;
         }
 
-        const durationMs = durationHours * 3600 * 1000;
-        const endTime = new Date(startTime.getTime() + durationMs);
+        const diffMs = endTime.getTime() - startTime.getTime();
         
-        // 음주 종료 시각 표시 (분 단위 포함)
-        endTimeDisplay.textContent = formatKoreanDatetime(endTime, false); 
+        if (diffMs < 0) {
+            totalDurationDisplay.textContent = "종료 시각이 시작 시각보다 빠릅니다.";
+            return;
+        }
+        
+        const diffTotalMinutes = Math.floor(diffMs / (60 * 1000));
+        const diffHours = Math.floor(diffTotalMinutes / 60);
+        const diffMinutes = diffTotalMinutes % 60;
+        
+        let durationText = '';
+        if (diffHours > 0) {
+            durationText += `${diffHours}시간 `;
+        }
+        if (diffMinutes > 0) {
+            durationText += `${diffMinutes}분`;
+        }
+        
+        if (diffHours === 0 && diffMinutes === 0) {
+             durationText = "0분";
+        }
+        
+        totalDurationDisplay.textContent = durationText.trim();
+    }
+
+    // 시각 포맷 함수
+    function formatKoreanDatetime(date, isSentence = false){
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        let hour = date.getHours();
+        const minute = date.getMinutes();
+
+        const ampm = hour >= 12 ? '오후' : '오전';
+        hour = hour % 12;
+        hour = hour ? hour : 12;
+        const minuteStr = minute < 10 ? '0' + minute : minute;
+
+        const baseFormat = `${year}년 ${month}월 ${day}일 ${ampm} ${hour}시 ${minuteStr}`;
+        
+        if (isSentence) {
+            return baseFormat; 
+        } else {
+            return `${baseFormat}분`;
+        }
     }
 
 
@@ -865,28 +922,6 @@
         displayML.textContent = Math.round(totalML);
     }
 
-    // 시각 포맷 함수
-    function formatKoreanDatetime(date, isSentence = false){
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
-        let hour = date.getHours();
-        const minute = date.getMinutes();
-
-        const ampm = hour >= 12 ? '오후' : '오전';
-        hour = hour % 12;
-        hour = hour ? hour : 12;
-        const minuteStr = minute < 10 ? '0' + minute : minute;
-
-        const baseFormat = `${year}년 ${month}월 ${day}일 ${ampm} ${hour}시 ${minuteStr}`;
-        
-        if (isSentence) {
-            return baseFormat; 
-        } else {
-            return `${baseFormat}분`;
-        }
-    }
-
     function calculateDetoxTime(){
         const gender = document.querySelector('input[name="gender"]:checked').value;
         const P = parseFloat(document.getElementById('weight').value); 
@@ -898,19 +933,21 @@
         const unitML = info.units[unit] || 0;
         const totalVolumeML = (isNaN(unitVolume) || unitVolume <= 0) ? 0 : unitVolume * unitML;
         
-        // 입력된 음주 시간 정보
-        const startTime = parseStartTime();
-        const drinkingDurationHours = parseFloat(inputDrinkingDuration.value); 
+        // 입력된 시각 정보 파싱
+        const startTime = parseTimeInput('Start');
+        const now = parseTimeInput('End'); // 음주 종료 시각이 해독 시작 시점
         
-        // 음주 종료 시각 (해독 시작 시점)
-        const durationMs = drinkingDurationHours * 3600 * 1000;
-        const now = new Date(startTime.getTime() + durationMs);
+        if (startTime.getTime() >= now.getTime()) {
+             showError("음주 종료 시각이 시작 시각보다 빠르거나 같습니다. 시각을 다시 확인해주세요."); return;
+        }
+        
+        // 총 음주 시간 계산 (시간 단위, 소수점 포함)
+        const drinkingDurationHours = (now.getTime() - startTime.getTime()) / (3600 * 1000);
+
 
         if(isNaN(P) || P <= 0){ showError("체중을 정확히 입력해주세요 (kg)."); return; }
         if(isNaN(alcoholContent) || alcoholContent < 0){ showError("도수를 정확히 입력해주세요 (%)."); return; }
         if(totalVolumeML <= 0){ showError("섭취량을 올바르게 입력해주세요."); return; }
-        if(isNaN(drinkingDurationHours) || drinkingDurationHours <= 0){ showError("총 음주 시간을 올바르게 입력해주세요."); return; }
-        if(isNaN(now.getTime())){ showError("유효한 음주 시작 시각을 입력해주세요."); return; }
 
 
         const R = (gender === 'male') ? 0.86 : 0.64;
