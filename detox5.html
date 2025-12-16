@@ -204,7 +204,7 @@
         cursor:pointer; transition:background-color 0.1s;
     }
     .journal-item:last-child, .history-item:last-child { border-bottom:none; }
-    .journal-icon {
+    .journal-icon, .history-icon {
         font-size:1.5rem; width:40px; height:40px; background: #F0F5FF; border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
     }
@@ -214,8 +214,10 @@
     /* 히스토리 상세 스타일 */
     .history-card { margin-top: 15px; }
     .history-card .history-content { flex-grow: 1; }
-    .history-content .time-info { font-size: 0.95rem; color: var(--muted); }
-    .history-content .detox-info { font-weight: 700; color: var(--primary); }
+    .history-content .info-row { font-size: 0.9rem; color: #4B5860; margin-top: 4px; }
+    .history-content .info-row strong { color: #16202A; font-weight: 600; margin-right: 5px;}
+    .history-content .detox-info { font-weight: 700; color: var(--primary); margin-top: 6px; }
+    
     .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
     .history-header .delete-btn {
         background: #FEEEEE;
@@ -952,7 +954,7 @@
 
 
     /***********************
-     * 탭 및 페이지 전환 로직
+     * 탭 및 페이지 전환 로직 (이전과 동일)
      ***********************/
     function handleTabClick(e) {
         e.preventDefault();
@@ -973,7 +975,7 @@
         calculatorContent.style.display = 'none';
         journalContent.style.display = 'none';
         journalDetailPage.style.display = 'none'; 
-        historyPage.style.display = 'none'; // 히스토리 페이지도 숨김
+        historyPage.style.display = 'none'; 
 
         // 해당 콘텐츠 보여주기
         if (tabName === 'calculator') {
@@ -1021,19 +1023,29 @@
     }
 
     /***********************
-     * 히스토리 저장 및 출력 로직 (새로 추가)
+     * 히스토리 저장 및 출력 로직 (업데이트)
      ***********************/
 
     function storeHistory(result) {
         const history = loadHistory();
         
+        // 현재 선택된 주종과 단위, 수량 정보를 가져옵니다.
+        const drinkType = document.querySelector('input[name="drinkType"]:checked').value;
+        const unitType = document.getElementById('unitType').value;
+        const unitVolume = parseFloat(document.getElementById('unitVolume').value);
+
         const newRecord = {
             id: Date.now(),
+            // 시간 정보
             startTime: result.startTime.toISOString(),
             endTime: result.now.toISOString(),
+            // 음주 정보
+            drinkType: drinkType,
+            quantity: `${unitVolume} ${unitType}`,
+            pureAlcohol: result.pureAlcoholGrams.toFixed(1),
+            // 결과 정보
             detoxTime: `${result.hoursPart}시간 ${result.minutesPart}분`,
             completionTime: result.completionTime.toISOString(),
-            pureAlcohol: result.pureAlcoholGrams.toFixed(1),
             peakBAC: result.C_peak.toFixed(4)
         };
         
@@ -1079,21 +1091,45 @@
         deleteAllHistoryBtn.style.display = 'inline-block';
 
         history.forEach(record => {
-            const startTimeStr = formatKoreanDatetime(new Date(record.startTime), false);
-            const endTimeStr = formatKoreanDatetime(new Date(record.endTime), false);
-            const completionTimeStr = formatKoreanDatetime(new Date(record.completionTime), false);
+            const startTimeMs = new Date(record.startTime).getTime();
+            const endTimeMs = new Date(record.endTime).getTime();
+            const durationMs = endTimeMs - startTimeMs;
+            
+            const diffTotalMinutes = Math.floor(durationMs / (60 * 1000));
+            const diffHours = Math.floor(diffTotalMinutes / 60);
+            const diffMinutes = diffTotalMinutes % 60;
+            
+            let durationText = '';
+            if (diffHours > 0) durationText += `${diffHours}시간 `;
+            if (diffMinutes > 0) durationText += `${diffMinutes}분`;
+            if (diffHours === 0 && diffMinutes === 0) durationText = "0분";
 
+            const completionTimeStr = formatKoreanDatetime(new Date(record.completionTime), false);
+            
+            // 주종 이름 포맷
+            const drinkName = record.drinkType.charAt(0).toUpperCase() + record.drinkType.slice(1);
+            
+            // 리스트 항목 HTML 구성
             const listItem = document.createElement('li');
             listItem.className = 'history-item';
             listItem.innerHTML = `
-                <div class="journal-icon">⏱️</div>
+                <div class="history-icon">📊</div>
                 <div class="history-content">
-                    <h3>측정 시각: ${endTimeStr}</h3>
-                    <p class="time-info">
-                        음주 시간: ${new Date(record.endTime).getTime() - new Date(record.startTime).getTime() > 0 ? (new Date(record.endTime).getTime() - new Date(record.startTime).getTime()) / (3600 * 1000) : 0}시간 / 순수 알코올: ${record.pureAlcohol} g
+                    
+                    <p class="info-row">
+                        <strong>음주 시간:</strong> ${durationText}
                     </p>
+                    
+                    <p class="info-row">
+                        <strong>주종 및 수량:</strong> ${drinkName} / ${record.quantity}
+                    </p>
+                    
+                    <p class="info-row">
+                        <strong>순수 알코올:</strong> ${record.pureAlcohol} g
+                    </p>
+                    
                     <p class="detox-info">
-                        해독 완료 예상: ${completionTimeStr} / 총 ${record.detoxTime}
+                        완료 예상: ${completionTimeStr}
                     </p>
                 </div>
                 <button class="delete-btn" onclick="deleteHistoryItem(${record.id})">삭제</button>
@@ -1103,7 +1139,7 @@
     }
 
     /***********************
-     * 계산기 UI 및 로직
+     * 계산기 UI 및 로직 (이전과 동일)
      ***********************/
 
     function updateUI(selectedDrink){
