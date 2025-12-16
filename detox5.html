@@ -242,7 +242,7 @@
     .back-button:hover { text-decoration: underline; }
 
 
-    /* ===== 탭바 스타일 (상단 고정 및 중앙 정렬) ===== */
+    /* ===== 탭바 스타일 (이전과 동일) ===== */
     .tab-bar {
         position:fixed; 
         top:0; /* 상단 고정 */
@@ -1041,9 +1041,11 @@
         let C_peak = C0;
         
         // 두 시각이 다를 경우에만 음주 시간 보정 적용 (디폴트 상태는 보정하지 않음)
-        if (startTime.getTime() !== now.getTime()) {
+        const isDefaultTime = (startTime.getTime() === now.getTime()); // <--- 추가된 플래그
+        
+        if (!isDefaultTime) {
             if (startTime.getTime() > now.getTime()) {
-                 showError("음주 종료 시각이 시작 시각보다 빠르거나 같습니다. 시각을 다시 확인해주세요."); return;
+                 showError("음주 종료 시각이 시작 시각보다 빠릅니다. 시각을 다시 확인해주세요."); return;
             }
             
             // 총 음주 시간 계산 (시간 단위, 소수점 포함)
@@ -1059,6 +1061,7 @@
                 C_peak = 0.0001; 
             }
         }
+        // else: isDefaultTime = true 이면 drinkingDurationHours = 0, C_peak = C0. 보정 없음.
 
         if(C_peak < 0.0001){ showSmallResult("섭취량이 매우 적거나 음주 시간이 길어 혈중 알코올 농도 추정치가 거의 0%입니다."); return; }
 
@@ -1071,13 +1074,14 @@
         const completionTime = new Date(now.getTime() + detoxDurationMs);
         
         const result = {
-            now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime
+            now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime,
+            isDefaultTime: isDefaultTime // <--- 플래그 전달
         };
         
         renderResult(result);
     }
 
-    function renderResult({now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime}){
+    function renderResult({now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime, isDefaultTime}){
         resultInitial.style.display = 'none';
         resultOutput.style.display = 'block';
 
@@ -1087,6 +1091,23 @@
             해독 완료 예상 시각은<br>
             <strong style="color: var(--primary);">${completionTimeSentenceFormat}분이에요.</strong>
         `;
+        
+        // 결과 카드 메타 정보 구성
+        let timeMetaHTML = '';
+        
+        if (isDefaultTime) {
+            // 디폴트 상태: '음주 측정 시각' 하나만 표시
+            timeMetaHTML = `
+                <div><strong>음주 측정 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(now, false)}</div></div>
+            `;
+        } else {
+            // 사용자 지정 상태: '음주 시작 시각'과 '음주 종료 시각' 모두 표시
+            timeMetaHTML = `
+                <div><strong>음주 시작 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(startTime, false)}</div></div>
+                <div><strong>음주 종료 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(now, false)}</div></div>
+            `;
+        }
+
 
         resultOutput.innerHTML = `
             <div class="section-title">⏳ 해독 시간 추정 결과</div>
@@ -1097,8 +1118,7 @@
                 <div class="sub" style="font-size: 1.1rem; line-height: 1.5;">${completionDisplay}</div>
 
                 <div class="meta" style="margin-top:15px;">
-                    <div><strong>음주 시작 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(startTime, false)}</div></div>
-                    <div><strong>음주 종료 시각</strong><div style="color:#4B5860">${formatKoreanDatetime(now, false)}</div></div>
+                    ${timeMetaHTML}
                     <div><strong>순수 알코올</strong><div style="color:#4B5860">${pureAlcoholGrams.toFixed(1)} g</div></div>
                     <div><strong>최대 BAC(추정)</strong><div style="color:#4B5860">${(C_peak).toFixed(4)}%</div></div>
                 </div>
