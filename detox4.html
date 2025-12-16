@@ -115,17 +115,17 @@
     .volume .qty { flex:1; }
     .ml-display { text-align:right; font-size:0.95rem; color:var(--muted); margin-top:6px; }
 
-    /* 시간 입력 필드 레이아웃 */
+    /* 시간 입력 필드 레이아웃 (수정된 부분) */
     .time-inputs {
         display: flex;
-        flex-direction: column; 
-        gap: 8px; 
+        flex-direction: column; /* 세로로 두 행을 배치 */
+        gap: 8px; /* 행 간격 */
         margin-top: 10px;
-        margin-bottom: 15px; 
+        margin-bottom: 15px; /* 각 시각 그룹 아래 여백 */
     }
     .time-row {
         display: flex;
-        gap: 8px; 
+        gap: 8px; /* 항목 간격 */
     }
     .time-row select {
         /* 높이 통일을 위해 padding을 main select와 동일하게 변경 */
@@ -634,13 +634,16 @@
       });
       calculateBtn.addEventListener('click', calculateDetoxTime);
 
-      // 시간 관련 필드 변경 시 총 음주 시간 업데이트
-      inputYearStart.addEventListener('change', () => { updateDaysInMonth('start'); updateDuration(); });
-      inputMonthStart.addEventListener('change', () => { updateDaysInMonth('start'); updateDuration(); });
-      inputDayStart.addEventListener('change', updateDuration);
-      inputHourStart.addEventListener('change', updateDuration);
-      inputMinuteStart.addEventListener('change', updateDuration);
-
+      // 시간 관련 필드 변경 시 총 음주 시간 업데이트 및 종료 시각 동기화
+      
+      // 시작 시각 필드 (변경 시 종료 시각 동기화)
+      inputYearStart.addEventListener('change', () => { updateDaysInMonth('start'); updateEndTimeInputs(); });
+      inputMonthStart.addEventListener('change', () => { updateDaysInMonth('start'); updateEndTimeInputs(); });
+      inputDayStart.addEventListener('change', updateEndTimeInputs);
+      inputHourStart.addEventListener('change', updateEndTimeInputs);
+      inputMinuteStart.addEventListener('change', updateEndTimeInputs);
+      
+      // 종료 시각 필드 (변경 시 총 음주 시간만 업데이트)
       inputYearEnd.addEventListener('change', () => { updateDaysInMonth('end'); updateDuration(); });
       inputMonthEnd.addEventListener('change', () => { updateDaysInMonth('end'); updateDuration(); });
       inputDayEnd.addEventListener('change', updateDuration);
@@ -670,6 +673,28 @@
     /***********************
      * 시간 입력 필드 로직 
      ***********************/
+     
+     // 음주 시작 시각을 종료 시각 입력 필드에 복사하는 함수
+     function updateEndTimeInputs() {
+        // 시작 시각 값을 가져옵니다.
+        const startYear = inputYearStart.value;
+        const startMonth = inputMonthStart.value;
+        const startDay = inputDayStart.value;
+        const startHour = inputHourStart.value;
+        const startMinute = inputMinuteStart.value;
+        
+        // 종료 시각 필드에 값을 설정합니다.
+        inputYearEnd.value = startYear;
+        inputMonthEnd.value = startMonth;
+        inputDayEnd.value = startDay;
+        inputHourEnd.value = startHour;
+        inputMinuteEnd.value = startMinute;
+
+        // 종료 시각이 변경되었으니, 총 음주 시간을 업데이트합니다.
+        updateDaysInMonth('end'); // 일 수 유효성 검사 및 업데이트
+        updateDuration();
+    }
+     
      function populateTimeInputs(type) {
         // 음주 시작/종료 시각을 현재 시각으로 디폴트 설정
         const now = new Date(); 
@@ -750,7 +775,7 @@
             }
             dayInput.appendChild(option);
         }
-        updateDuration();
+        // updateDuration()은 이벤트 리스너 체인에서 호출됨
     }
 
     // 입력된 시각을 Date 객체로 파싱하는 함수
