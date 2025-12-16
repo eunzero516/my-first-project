@@ -989,7 +989,7 @@
             return `${baseFormat} ${timeFormat}`;
         } else if (includeDayOfWeek) {
             // 히스토리 항목의 '12월 15일(월) HH시 MM분' 포맷
-             return `${baseFormat} ${timeFormat}분`;
+             return `${baseFormat} ${ampm} ${hour}시 ${minuteStr}분`;
         } else {
             // 기본 포맷 (측정 시각/종료 시각/시작 시각 표시용)
             return `${baseFormat} ${timeFormat}분`;
@@ -1078,7 +1078,7 @@
 
         const newRecord = {
             id: Date.now(),
-            measuredTime: new Date().toISOString(), // 측정 버튼 클릭 시점
+            measuredTime: new Date().toISOString(), 
             startTime: result.startTime.toISOString(),
             endTime: result.now.toISOString(),
             // 음주 정보
@@ -1157,9 +1157,11 @@
             
             groupedHistory[groupKey].forEach(record => {
                 const measuredDate = new Date(record.measuredTime);
+                const startTime = new Date(record.startTime);
+                const endTime = new Date(record.endTime);
                 
                 // 총 음주 시간 계산
-                const durationMs = new Date(record.endTime).getTime() - new Date(record.startTime).getTime();
+                const durationMs = endTime.getTime() - startTime.getTime();
                 const diffTotalMinutes = Math.floor(durationMs / (60 * 1000));
                 const diffHours = Math.floor(diffTotalMinutes / 60);
                 const diffMinutes = diffTotalMinutes % 60;
@@ -1168,6 +1170,7 @@
                 if (diffMinutes > 0) durationText += `${diffMinutes}분`;
                 if (diffHours === 0 && diffMinutes === 0) durationText = "0분";
 
+                // 측정 시각 포맷 (12월 15일(월) 오후 1시 25분)
                 const measuredTimeStr = formatKoreanDatetime(measuredDate, false, true);
                 
                 // 주종 이름 포맷
@@ -1178,7 +1181,7 @@
                 listItem.className = 'history-item';
                 listItem.innerHTML = `
                     <p class="info-row" style="font-weight: 700; color: #16202A;">
-                        ${measuredTimeStr.replace(/\d{4}년 /g, '').replace(/오후|오전 /g, '')}
+                        ${measuredTimeStr.replace(/\d{4}년 /g, '').replace(/오후|오전 /g, '').replace(/\분/g, '')}
                     </p>
                     <p class="info-row">
                         <strong>음주 시간:</strong> ${durationText.trim()}
@@ -1283,7 +1286,7 @@
         let drinkingDurationHours = 0;
         let C_peak = C0;
         
-        // 두 시각이 다를 경우에만 음주 시간 보정 적용
+        // 두 시각이 다를 경우에만 음주 시간 보정 적용 (디폴트 상태는 보정하지 않음)
         if (startTime.getTime() !== now.getTime()) {
             if (startTime.getTime() > now.getTime()) {
                  showError("음주 종료 시각이 시작 시각보다 빠릅니다. 시각을 다시 확인해주세요."); return;
@@ -1302,7 +1305,6 @@
                 C_peak = 0.0001; 
             }
         }
-        // else: 두 시각이 같으면 (디폴트 상태), drinkingDurationHours = 0, C_peak = C0. 보정 없음.
 
         if(C_peak < 0.0001){ showSmallResult("섭취량이 매우 적거나 음주 시간이 길어 혈중 알코올 농도 추정치가 거의 0%입니다."); return; }
 
