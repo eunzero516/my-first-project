@@ -198,26 +198,21 @@
 
 
     /* ===== 히스토리 및 저널 리스트 스타일 ===== */
-    .journal-list, .history-list { list-style:none; padding:0; margin:0; }
-    .journal-item, .history-item {
+    .journal-list { list-style:none; padding:0; margin:0; }
+    .journal-item {
         display:flex; align-items:center; gap:15px; padding:15px 0; border-bottom:1px solid var(--border);
         cursor:pointer; transition:background-color 0.1s;
     }
-    .journal-item:last-child, .history-item:last-child { border-bottom:none; }
-    .journal-icon, .history-icon {
+    .journal-item:last-child { border-bottom:none; }
+    .journal-icon {
         font-size:1.5rem; width:40px; height:40px; background: #F0F5FF; border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
     }
-    .journal-content h3, .history-content h3 { margin:0; font-size:1rem; font-weight:600; color:#16202A; }
-    .journal-content p, .history-content p { margin:3px 0 0; font-size:0.85rem; color:var(--muted); }
+    .journal-content h3 { margin:0; font-size:1rem; font-weight:600; color:#16202A; }
+    .journal-content p { margin:3px 0 0; font-size:0.85rem; color:var(--muted); }
     
-    /* 히스토리 상세 스타일 */
+    /* 히스토리 페이지 스타일 */
     .history-card { margin-top: 15px; }
-    .history-card .history-content { flex-grow: 1; }
-    .history-content .info-row { font-size: 0.9rem; color: #4B5860; margin-top: 4px; }
-    .history-content .info-row strong { color: #16202A; font-weight: 600; margin-right: 5px;}
-    .history-content .detox-info { font-weight: 700; color: var(--primary); margin-top: 6px; }
-    
     .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
     .history-header .delete-btn {
         background: #FEEEEE;
@@ -231,31 +226,49 @@
     .history-header .delete-btn:active {
         background: #FDDDDD;
     }
-
-
-    /* 저널 상세 페이지 스타일 */
-    .detail-card { margin-top: 15px; padding: 25px; }
-    .detail-card h2 { font-size: 1.4rem; color: #16202A; margin-top: 0; margin-bottom: 15px; }
-    .detail-card h3 { font-size: 1.1rem; color: var(--primary); margin-top: 20px; margin-bottom: 8px; }
-    .detail-card p { margin-bottom: 12px; }
-    .detail-card ul { padding-left: 20px; }
-    .detail-card li { margin-bottom: 5px; }
-    
-    /* 저널 상세 페이지 내부 스타일링 */
-    .journal-detail-content strong { color: var(--primary); font-weight: 700; }
-    .journal-detail-content h3 { font-size: 1.1rem; color: #16202A; margin-top: 20px; margin-bottom: 8px; }
-    .journal-detail-content p, .journal-detail-content ul { margin-bottom: 12px; }
-    .journal-detail-content ul { list-style-type: disc; padding-left: 20px; }
-    .journal-detail-content .highlight { 
-        padding: 8px; background: #FFF3E0; border-left: 4px solid #FFA000; border-radius: 4px;
-        margin-top: 15px; font-weight: 600; font-size: 0.95rem;
-    }
-    /* 디톡스 포인트 타이틀 색상 변경 */
-    .journal-detail-content .detox-point {
+    /* 그룹 헤더 (년/월) */
+    .history-group-header {
+        font-size: 1.1rem;
+        font-weight: 700;
         color: var(--primary);
+        margin-top: 20px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid var(--primary);
+    }
+    /* 히스토리 리스트 아이템 */
+    .history-list { list-style: none; padding: 0; margin: 10px 0 0 0; }
+    .history-item {
+        display: block;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+    }
+    .history-item:last-child { border-bottom: none; }
+    
+    .history-item .info-row { 
+        font-size: 0.95rem; 
+        color: #4B5860; 
+        line-height: 1.6;
+    }
+    .history-item .info-row strong { color: #16202A; font-weight: 600; margin-right: 5px;}
+    .history-item .detox-time-info { font-weight: 700; color: var(--accent); margin-top: 4px; }
+    
+    .history-item .delete-btn {
+        position: absolute;
+        right: 0;
+        top: 15px;
+        background: none;
+        color: var(--danger);
+        border: none;
+        padding: 5px;
+        font-size: 0.8rem;
+        cursor: pointer;
     }
 
 
+    /* 저널 상세 페이지 스타일 (이전과 동일) */
+    .detail-card { margin-top: 15px; padding: 25px; }
+    /* ... (기존 상세 페이지 스타일 유지) ... */
     .back-button {
         display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px;
         color: var(--primary); font-weight: 600; text-decoration: none;
@@ -263,7 +276,7 @@
     .back-button:hover { text-decoration: underline; }
 
 
-    /* ===== 탭바 스타일 (상단 고정 및 중앙 정렬) ===== */
+    /* ===== 탭바 스타일 (이전과 동일) ===== */
     .tab-bar {
         position:fixed; 
         top:0; /* 상단 고정 */
@@ -522,8 +535,8 @@
                 <div class="section-title">기록 목록</div>
                 <button id="deleteAllHistoryBtn" class="delete-btn" type="button" style="display: none;">🗑️ 전체 삭제</button>
             </div>
-            <ul id="historyList" class="history-list">
-                </ul>
+            <div id="historyListContainer">
+                </div>
             <div id="noHistory" class="muted-note" style="text-align: center; margin-top: 15px; display: none;">
                 저장된 측정 기록이 없습니다.
             </div>
@@ -665,7 +678,7 @@
     const journalContent = document.getElementById('journalContent');
     const journalDetailPage = document.getElementById('journalDetailPage'); 
     const historyPage = document.getElementById('historyPage'); // 히스토리 페이지
-    const historyList = document.getElementById('historyList');
+    const historyListContainer = document.getElementById('historyListContainer'); // 히스토리 리스트 컨테이너
     const noHistory = document.getElementById('noHistory');
     const deleteAllHistoryBtn = document.getElementById('deleteAllHistoryBtn');
     
@@ -931,36 +944,42 @@
     }
 
     // 시각 포맷 함수
-    function formatKoreanDatetime(date, isSentence = false){
+    function formatKoreanDatetime(date, isSentence = false, includeDayOfWeek = false){
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const day = date.getDate();
         let hour = date.getHours();
         const minute = date.getMinutes();
+        const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
 
         const ampm = hour >= 12 ? '오후' : '오전';
         hour = hour % 12;
         hour = hour ? hour : 12;
         const minuteStr = minute < 10 ? '0' + minute : minute;
 
-        const baseFormat = `${year}년 ${month}월 ${day}일 ${ampm} ${hour}시 ${minuteStr}`;
+        let baseFormat = `${year}년 ${month}월 ${day}일`;
+        if (includeDayOfWeek) {
+            baseFormat = `${month}월 ${day}일(${dayOfWeek})`;
+        }
+        
+        const timeFormat = `${ampm} ${hour}시 ${minuteStr}`;
         
         if (isSentence) {
-            return baseFormat; 
+            return `${baseFormat} ${timeFormat}`;
         } else {
-            return `${baseFormat}분`;
+            // 기본 포맷 (측정 시각/종료 시각/시작 시각 표시용)
+            return `${baseFormat} ${timeFormat}분`;
         }
     }
 
 
     /***********************
-     * 탭 및 페이지 전환 로직 (이전과 동일)
+     * 탭 및 페이지 전환 로직
      ***********************/
     function handleTabClick(e) {
         e.preventDefault();
         const tabName = e.currentTarget.getAttribute('data-tab');
         
-        // 히스토리 탭은 별도의 페이지 전환 함수 사용
         if (tabName === 'history') {
              showHistoryPage();
              return;
@@ -987,7 +1006,7 @@
         } else if (tabName === 'history') {
              historyPage.style.display = 'block';
              document.title = '📜 측정 히스토리';
-             renderHistoryList(); // 히스토리 페이지 표시 시 목록 업데이트
+             renderHistoryList(); 
         }
 
         // 탭 활성화 상태 변경
@@ -1036,7 +1055,7 @@
 
         const newRecord = {
             id: Date.now(),
-            // 시간 정보
+            measuredTime: new Date().toISOString(), // 측정 버튼 클릭 시점
             startTime: result.startTime.toISOString(),
             endTime: result.now.toISOString(),
             // 음주 정보
@@ -1044,7 +1063,7 @@
             quantity: `${unitVolume} ${unitType}`,
             pureAlcohol: result.pureAlcoholGrams.toFixed(1),
             // 결과 정보
-            detoxTime: `${result.hoursPart}시간 ${result.minutesPart}분`,
+            detoxTime: result.detoxTime,
             completionTime: result.completionTime.toISOString(),
             peakBAC: result.C_peak.toFixed(4)
         };
@@ -1063,7 +1082,8 @@
         }
     }
     
-    function deleteHistoryItem(id) {
+    // 개별 기록 삭제 (onclick에서 사용)
+    window.deleteHistoryItem = function(id) {
         let history = loadHistory();
         history = history.filter(item => item.id !== id);
         localStorage.setItem('detoxHistory', JSON.stringify(history));
@@ -1079,7 +1099,7 @@
 
     function renderHistoryList() {
         const history = loadHistory();
-        historyList.innerHTML = '';
+        historyListContainer.innerHTML = '';
 
         if (history.length === 0) {
             noHistory.style.display = 'block';
@@ -1090,53 +1110,69 @@
         noHistory.style.display = 'none';
         deleteAllHistoryBtn.style.display = 'inline-block';
 
-        history.forEach(record => {
-            const startTimeMs = new Date(record.startTime).getTime();
-            const endTimeMs = new Date(record.endTime).getTime();
-            const durationMs = endTimeMs - startTimeMs;
+        // 년/월별로 기록 그룹화
+        const groupedHistory = history.reduce((acc, record) => {
+            const date = new Date(record.measuredTime);
+            const groupKey = `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
             
-            const diffTotalMinutes = Math.floor(durationMs / (60 * 1000));
-            const diffHours = Math.floor(diffTotalMinutes / 60);
-            const diffMinutes = diffTotalMinutes % 60;
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(record);
+            return acc;
+        }, {});
+        
+        // 그룹을 순서대로 표시 (reduce를 사용했으므로 이미 최신순으로 정렬됨)
+        Object.keys(groupedHistory).forEach(groupKey => {
+            const groupHeader = document.createElement('h3');
+            groupHeader.className = 'history-group-header';
+            groupHeader.textContent = groupKey;
+            historyListContainer.appendChild(groupHeader);
             
-            let durationText = '';
-            if (diffHours > 0) durationText += `${diffHours}시간 `;
-            if (diffMinutes > 0) durationText += `${diffMinutes}분`;
-            if (diffHours === 0 && diffMinutes === 0) durationText = "0분";
+            const list = document.createElement('ul');
+            list.className = 'history-list';
+            
+            groupedHistory[groupKey].forEach(record => {
+                const measuredDate = new Date(record.measuredTime);
+                
+                // 총 음주 시간 계산
+                const durationMs = new Date(record.endTime).getTime() - new Date(record.startTime).getTime();
+                const diffTotalMinutes = Math.floor(durationMs / (60 * 1000));
+                const diffHours = Math.floor(diffTotalMinutes / 60);
+                const diffMinutes = diffTotalMinutes % 60;
+                let durationText = '';
+                if (diffHours > 0) durationText += `${diffHours}시간 `;
+                if (diffMinutes > 0) durationText += `${diffMinutes}분`;
+                if (diffHours === 0 && diffMinutes === 0) durationText = "0분";
 
-            const completionTimeStr = formatKoreanDatetime(new Date(record.completionTime), false);
-            
-            // 주종 이름 포맷
-            const drinkName = record.drinkType.charAt(0).toUpperCase() + record.drinkType.slice(1);
-            
-            // 리스트 항목 HTML 구성
-            const listItem = document.createElement('li');
-            listItem.className = 'history-item';
-            listItem.innerHTML = `
-                <div class="history-icon">📊</div>
-                <div class="history-content">
-                    
-                    <p class="info-row">
-                        <strong>음주 시간:</strong> ${durationText}
+
+                // 리스트 항목 HTML 구성
+                const listItem = document.createElement('li');
+                listItem.className = 'history-item';
+                listItem.innerHTML = `
+                    <p class="info-row" style="font-weight: 700; color: #16202A;">
+                        ${formatKoreanDatetime(measuredDate, false, true)} ${measuredDate.getHours()}시 ${measuredDate.getMinutes() < 10 ? '0' : ''}${measuredDate.getMinutes()}분
                     </p>
-                    
                     <p class="info-row">
-                        <strong>주종 및 수량:</strong> ${drinkName} / ${record.quantity}
+                        <strong>음주 시간:</strong> ${durationText.trim()}
                     </p>
-                    
+                    <p class="info-row">
+                        <strong>주종 및 수량:</strong> ${record.drinkType.charAt(0).toUpperCase() + record.drinkType.slice(1)} / ${record.quantity}
+                    </p>
                     <p class="info-row">
                         <strong>순수 알코올:</strong> ${record.pureAlcohol} g
                     </p>
-                    
-                    <p class="detox-info">
-                        완료 예상: ${completionTimeStr}
+                    <p class="detox-time-info">
+                        해독 시간: ${record.detoxTime}
                     </p>
-                </div>
-                <button class="delete-btn" onclick="deleteHistoryItem(${record.id})">삭제</button>
-            `;
-            historyList.appendChild(listItem);
+                    <button class="delete-btn" onclick="deleteHistoryItem(${record.id})">삭제</button>
+                `;
+                list.appendChild(listItem);
+            });
+            historyListContainer.appendChild(list);
         });
     }
+
 
     /***********************
      * 계산기 UI 및 로직 (이전과 동일)
@@ -1252,7 +1288,8 @@
         const completionTime = new Date(now.getTime() + detoxDurationMs);
         
         const result = {
-            now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime
+            now, completionTime, T_hours, hoursPart, minutesPart, pureAlcoholGrams, C_peak, startTime,
+            detoxTime: `${hoursPart}시간 ${minutesPart}분`
         };
         
         renderResult(result);
