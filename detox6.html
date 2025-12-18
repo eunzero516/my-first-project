@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🍺 알코올 디톡스 계산기 & 저널</title>
+  <meta name="description" content="해독 계산기 및 디톡스 저널 통합 버전입니다. 참고용으로만 사용하세요." />
+  
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+  <style>
+    /* ===== 폰트 및 컬러 변수 ===== */
+    :root{
+      --bg: #F7F9FB;
+      --card: #FFFFFF;
+      --primary: #5989F7;
+      --accent: #27AE60;
+      --danger: #E74C3C;
+      --muted: #6B7280;
+      --border: #E6EEF6;
+      --radius: 14px;
+      --shadow: 0 6px 20px rgba(16,24,40,0.06);
+      /* 탭바 높이 (대략 50px + 패딩) */
+      --tab-bar-height: 54px;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,var(--bg), #F4F7FB);
+      color:#16202A;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      flex-direction: column;
+      justify-content:flex-start;
+      /* 상단 탭바 높이만큼 패딩 추가 */
+      padding: calc(var(--tab-bar-height) + 28px) 18px 28px; 
+      font-size:16px;
+      line-height:1.4;
+    }
+
+    /* ===== 컨테이너 ===== */
+    .app {
+      width:100%;
+      max-width:520px;
+      margin: 0 auto;
+    }
+
+    /* ===== 헤더 및 타이틀 (콘텐츠 헤더는 탭바 아래로 내려옴) ===== */
+    header {
+      text-align:center;
+      margin-bottom:18px;
+    }
+    .title {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      font-weight:700;
+      color:var(--primary);
+      font-size:1.6rem;
+    }
+    .subtitle {
+      color:var(--muted);
+      font-size:0.95rem;
+      margin-top:6px;
+    }
+
+    /* ===== 카드 스타일 ===== */
+    .card {
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:14px;
+      border:1px solid var(--border);
+    }
+    .card + .card { margin-top:10px; }
+
+    .section-title {
+      font-size:0.98rem;
+      font-weight:600;
+      margin-bottom:10px;
+      color:#243447;
+    }
+
+    /* ===== 폼 및 입력 필드 (높이 통일) ===== */
+    label.small { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:6px; }
+    input[type="number"], select, .input-text {
+      width:100%; 
+      padding:12px 14px; 
+      border-radius:10px; border:1px solid #E6EEF6; background:#FBFDFF;
+      font-size:1rem; color:#102027; outline:none; transition:box-shadow .15s ease, border-color .15s ease;
+    }
+    input[type="number"]:focus, select:focus, .input-text:focus{
+      box-shadow:0 6px 18px rgba(89,137,247,0.12); border-color:var(--primary);
+    }
+
+    /* 라디오 그룹 (플랫 스타일) */
+    .radio-group { display:flex; gap:10px; flex-wrap:wrap; }
+    .radio-input { display:none; }
+    .radio-label {
+      flex:1; text-align:center; padding:10px 8px; border-radius:10px; border:2px solid #E6EEF6; cursor:pointer;
+      user-select:none; font-weight:600; color:#334155; background:var(--card);
+    }
+    .radio-input:checked + .radio-label{ background:var(--primary); color:white; border-color:var(--primary); box-shadow:none; }
+
+    /* 섭취량 컨트롤 */
+    .volume { display:flex; gap:10px; align-items:center; }
+    .volume .unit-select { width:45%; min-width:110px; }
+    .volume .qty { flex:1; }
+    .ml-display { text-align:right; font-size:0.95rem; color:var(--muted); margin-top:6px; }
+
+    /* 시간 입력 필드 레이아웃 */
+    .time-inputs {
+        display: flex;
+        flex-direction: column; 
+        gap: 8px; 
+        margin-top: 10px;
+        margin-bottom: 10px; 
+    }
+    .time-row {
+        display: flex;
+        gap: 8px; 
+    }
+    .time-row select {
+        padding: 12px 14px; 
+        font-size: 1rem;
+        flex-grow: 1;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    /* 카드 하단 버튼 그룹 */
+    .card-footer-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+    }
+    .card-footer-buttons .sub-btn {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: #F0F5FF;
+        color: var(--primary);
+        border: 1px solid var(--border);
+        box-shadow: none;
+    }
+    .card-footer-buttons .sub-btn:active {
+        background: #E0E8FF;
+    }
+
+    /* 버튼 (플랫 스타일) */
+    .btn {
+      display:inline-block; width:100%; border:0; padding:14px; border-radius:12px; font-weight:700;
+      font-size:1.05rem; cursor:pointer; background:var(--primary); color:white; box-shadow:none;
+    }
+    .btn:active{ transform:translateY(1px) }
+
+    /* 결과 카드 */
+    .result .big { text-align:center; font-size:1.5rem; font-weight:800; color:var(--accent); }
+    .result .sub { text-align:center; color:#1B3B4D; font-weight:600; }
+    .result .meta {
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; color:#4B5860;
+      font-size:0.95rem; margin-top:6px;
+    }
+    .result .meta div { min-width:140px; }
+
+    /* 경고 박스 */
+    .disclaimer {
+      background:#FFF4F4; border-left:6px solid var(--danger); padding:12px; border-radius:8px;
+      color:#6B2630; font-size:0.92rem; line-height:1.45;
+    }
+    .muted-note { font-size:0.88rem; color:var(--muted) }
+
+    /* 디톡스 저널 스타일 */
+    .journal-list { list-style:none; padding:0; margin:0; }
+    .journal-item {
+        display:flex; align-items:center; gap:15px; padding:15px 0; border-bottom:1px solid var(--border);
+        cursor:pointer; transition:background-color 0.1s;
+    }
+    .journal-item:hover { background-color: #f9f9f9; }
+    .journal-item:last-child { border-bottom:none; }
+    .journal-icon {
+        font-size:1.5rem; width:40px; height:40px; background: #F0F5FF; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .journal-content h3 { margin:0; font-size:1rem; font-weight:600; color:#16202A; }
+    .journal-content p { margin:3px 0 0; font-size:0.85rem; color:var(--muted); }
+    
+    /* 상세 페이지 내부 스타일링 */
+    .journal-detail-content strong { color: var(--primary); font-weight: 700; }
+    .journal-detail-content h3 { font-size: 1.1rem; color: #16202A; margin-top: 20px; margin-bottom: 8px; }
+    .journal-detail-content p, .journal-detail-content ul { margin-bottom: 12px; }
+    .journal-detail-content ul { list-style-type: disc; padding-left: 20px; }
+    .journal-detail-content .highlight { 
+        padding: 8px; background: #FFF3E0; border-left: 4px solid #FFA000; border-radius: 4px;
+        margin-top: 15px; font-weight: 600; font-size: 0.95rem;
+    }
+    .journal-detail-content .detox-point { color: var(--primary); }
+
+    .back-button {
+        display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px;
+        color: var(--primary); font-weight: 600; text-decoration: none;
+    }
+
+    /* 탭바 */
+    .tab-bar {
+        position:fixed; 
+        top:0; left: 50%; transform: translateX(-50%);
+        width: 100%; max-width: 520px; height: var(--tab-bar-height);
+        display:flex; justify-content:center;
+        background:var(--card); border-bottom:1px solid var(--border);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index:1000;
+    }
+    .tab-item {
+        display:flex; align-items:center; justify-content:center;
+        text-decoration:none; color:var(--muted); font-size:0.9rem; font-weight:700;
+        flex: 1; gap: 6px; border-bottom: 3px solid transparent;
+    }
+    .tab-item.active { color:var(--primary); border-bottom: 3px solid var(--primary); }
+
+    @media(min-width:520px){
+        body { padding-top: calc(var(--tab-bar-height) + 28px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div id="calculatorContent">
+        <header>
+          <div class="title">🍺 알코올 해독 계산기</div>
+          <div class="subtitle">입력한 정보로 예상 해독 시간과 완료 시각을 알려드립니다. (참고용)</div>
+        </header>
+    
+        <section class="card">
+            <div class="section-title">기본 정보</div>
+            <div style="margin-bottom:12px;">
+                <label class="small">성별</label>
+                <div class="radio-group">
+                    <input class="radio-input" type="radio" id="gender-male" name="gender" value="male" checked>
+                    <label class="radio-label" for="gender-male">🧑 남성</label>
+                    <input class="radio-input" type="radio" id="gender-female" name="gender" value="female">
+                    <label class="radio-label" for="gender-female">👩 여성</label>
+                </div>
+            </div>
+            <div style="margin-top:6px">
+                <label class="small" for="weight">체중 (kg)</label>
+                <input id="weight" type="number" inputmode="decimal" step="0.1" placeholder="예: 70.5" />
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="section-title">주종 & 도수</div>
+            <div style="margin-bottom:10px;">
+                <label class="small">주종 선택</label>
+                <div class="radio-group">
+                    <input class="radio-input" type="radio" id="drink-soju" name="drinkType" value="soju" checked>
+                    <label class="radio-label" for="drink-soju">소주</label>
+                    <input class="radio-input" type="radio" id="drink-beer" name="drinkType" value="beer">
+                    <label class="radio-label" for="drink-beer">맥주</label>
+                    <input class="radio-input" type="radio" id="drink-makgeolli" name="drinkType" value="makgeolli">
+                    <label class="radio-label" for="drink-makgeolli">막걸리</label>
+                    <input class="radio-input" type="radio" id="drink-wine" name="drinkType" value="wine">
+                    <label class="radio-label" for="drink-wine">와인</label>
+                    <input class="radio-input" type="radio" id="drink-whiskey" name="drinkType" value="whiskey">
+                    <label class="radio-label" for="drink-whiskey">위스키</label>
+                    <input class="radio-input" type="radio" id="drink-custom" name="drinkType" value="custom">
+                    <label class="radio-label" for="drink-custom">기타</label>
+                </div>
+            </div>
+            <div>
+                <label class="small" for="alcoholContent">도수 (%)</label>
+                <input id="alcoholContent" class="input-text" type="number" step="0.1" placeholder="직접 입력 가능" />
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="section-title">섭취량</div>
+            <div class="volume">
+                <div class="qty">
+                    <label class="small" for="unitVolume">수량</label>
+                    <input id="unitVolume" type="number" step="1" placeholder="수량 입력" />
+                </div>
+                <div class="unit-select">
+                    <label class="small" for="unitType">단위</label>
+                    <select id="unitType"></select>
+                </div>
+            </div>
+            <div class="ml-display">총 환산량: <strong id="displayML">0</strong> mL</div>
+        </section>
+        
+        <section class="card" id="timeInputCard">
+            <div class="section-title">측정 시각 (선택)</div>
+            <label class="small">현재 시각 기준으로 해독이 얼마나 남았는지 계산합니다.</label>
+            <div class="time-inputs">
+                <div class="time-row">
+                    <select id="inputYearMeasured"></select>
+                    <select id="inputMonthMeasured"></select>
+                    <select id="inputDayMeasured"></select>
+                </div>
+                <div class="time-row">
+                    <select id="inputHourMeasured"></select>
+                    <select id="inputMinuteMeasured"></select>
+                </div>
+            </div>
+            <div class="card-footer-buttons">
+                <button id="resetTimeBtn" class="sub-btn" type="button">🔄 현재 시각으로 재설정</button>
+            </div>
+        </section>
+
+        <button id="calculateBtn" class="btn" type="button">측정하기</button>
+
+        <section id="resultArea" class="card" style="margin-top:14px">
+            <div id="resultInitial" class="result">
+                <div class="section-title">결과</div>
+                <div class="muted-note">정보를 입력하고 '측정하기' 버튼을 눌러주세요.</div>
+            </div>
+            <div id="resultOutput" style="display:none"></div>
+        </section>
+
+        <section style="margin-top:10px">
+            <div class="disclaimer">
+                <strong>⚠️ 주의</strong> 본 계산기는 위드마크 공식을 이용한 추정치입니다. 개인차(간 기능, 음식 등)가 크므로 절대 음주운전이나 법적 근거로 사용하지 마세요.
+            </div>
+        </section>
+    </div>
+
+    <div id="journalContent" style="display:none;">
+        <header><div class="title">📰 디톡스 저널</div><div class="subtitle">건강한 회복을 돕는 정보들</div></header>
+        <section class="card"><ul class="journal-list" id="journalListItems"></ul></section>
+    </div>
+    <div id="journalDetailPage" style="display:none;">
+        <header><a href="#journal" class="back-button" onclick="showTab('journal')">&larr; 목록으로 돌아가기</a><h2 id="detailTitle" style="text-align:center"></h2></header>
+        <section class="card detail-card"><div id="detailContent" class="journal-detail-content"></div></section>
+    </div>
+  </main>
+
+  <nav class="tab-bar">
+    <a href="#calculator" class="tab-item active" data-tab="calculator"><span>⏳</span><span>계산기</span></a>
+    <a href="#journal" class="tab-item" data-tab="journal"><span>📰</span><span>디톡스 저널</span></a>
+  </nav>
+
+  <script>
+    const ALCOHOL_SPECIFIC_GRAVITY = 0.7894; 
+    const ABSORPTION_RATE = 0.7;             
+    const BETA = 0.015;                      
+
+    const DRINK_DATA = {
+      soju: { degree: 16.5, units: {'잔':50,'병':360,'mL':1} },
+      beer: { degree: 5.0, units: {'캔(500mL)':500,'캔(350mL)':350,'병(500mL)':500,'병(330mL)':330,'잔(500mL)':500,'mL':1} },
+      makgeolli: { degree: 6.0, units: {'병(750mL)': 750, '캔(350mL)': 350, 'mL': 1} },
+      wine: { degree: 13.0, units: {'잔':125,'병':750,'mL':1} },
+      whiskey: { degree: 40.0, units: {'샷':30,'병':750,'mL':1} },
+      custom: { degree: 0, units: {'mL':1} }
+    };
+
+    const JOURNAL_CONTENT = {
+        detoxMyths: { title: "해장 효과, 진짜 vs 오해", icon: "😵‍💫", html: `<p>숙취가 심할수록 “뭔가 하면 나아질 것 같다”는 생각이 들지만, 일부 해장 방법은 오히려 해독을 늦출 수 있어요.</p><h3>🍺 해장술: 술로 술을 푼다? → 착각입니다</h3><p>실제 해독은 더 늦어집니다. 신경이 둔해져 덜 취한 느낌이 드는 것뿐입니다.</p><p class="highlight">📌 결론: 해장술 ❌ → 해독 지연 + 간 부담 증가</p><h3>🥵 사우나 ∙ 땀 빼기: 땀으로 술이 빠진다? → 거의 아닙니다</h3><p>알코올의 90% 이상은 간에서 분해됩니다. 땀 배출은 극히 일부이며 오히려 탈수를 심화시킵니다.</p><p class="highlight">📌 결론: 사우나 ❌ → 해독 효과 미미 + 숙취 악화 가능</p><h3 class="detox-point">🕒 디톡스 포인트</h3><p>가장 확실한 방법은 <strong>시간, 수분 보충, 휴식</strong>입니다.</p>` },
+        top5foods: { title: "숙취 해소에 좋은 음식 TOP 5", icon: "🥑", html: `<p>1. 계란(아미노산 풍부) / 2. 콩나물(아스파라긴산) / 3. 바나나(칼륨 보충) / 4. 꿀물(에너지) / 5. 물(탈수 예방)</p>` }
+    };
+
+    const alcoholContentInput = document.getElementById('alcoholContent');
+    const unitTypeSelect = document.getElementById('unitType');
+    const unitVolumeInput = document.getElementById('unitVolume');
+    const displayML = document.getElementById('displayML');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resultOutput = document.getElementById('resultOutput');
+    const resultInitial = document.getElementById('resultInitial');
+    const resetTimeBtn = document.getElementById('resetTimeBtn');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initUI();
+      renderJournalList();
+      populateTimeInputs();
+      
+      document.querySelectorAll('input[name="drinkType"]').forEach(r => r.addEventListener('change', (e) => updateDrinkUI(e.target.value)));
+      unitVolumeInput.addEventListener('input', updateConvertedVolume);
+      unitTypeSelect.addEventListener('change', updateConvertedVolume);
+      calculateBtn.addEventListener('click', calculateDetoxTime);
+      resetTimeBtn.addEventListener('click', populateTimeInputs);
+      document.querySelectorAll('.tab-item').forEach(tab => tab.addEventListener('click', handleTabClick));
+    });
+
+    function initUI() { updateDrinkUI('soju'); }
+
+    function updateDrinkUI(val) {
+      const info = DRINK_DATA[val];
+      alcoholContentInput.value = info.degree || '';
+      unitTypeSelect.innerHTML = Object.keys(info.units).map(u => `<option value="${u}">${u}</option>`).join('');
+      updateConvertedVolume();
+    }
+
+    function updateConvertedVolume() {
+      const val = document.querySelector('input[name="drinkType"]:checked').value;
+      const unit = unitTypeSelect.value;
+      const qty = parseFloat(unitVolumeInput.value) || 0;
+      displayML.textContent = Math.round(qty * DRINK_DATA[val].units[unit]);
+    }
+
+    // 시간 입력 필드 제어 (단일 측정 시각용)
+    function populateTimeInputs() {
+        const now = new Date();
+        const yearSelect = document.getElementById('inputYearMeasured');
+        const monthSelect = document.getElementById('inputMonthMeasured');
+        const daySelect = document.getElementById('inputDayMeasured');
+        const hourSelect = document.getElementById('inputHourMeasured');
+        const minSelect = document.getElementById('inputMinuteMeasured');
+
+        const years = [now.getFullYear()-1, now.getFullYear(), now.getFullYear()+1];
+        yearSelect.innerHTML = years.map(y => `<option value="${y}" ${y===now.getFullYear()?'selected':''}>${y}년</option>`).join('');
+        monthSelect.innerHTML = Array.from({length:12}, (_,i)=>i+1).map(m => `<option value="${m}" ${m===(now.getMonth()+1)?'selected':''}>${m}월</option>`).join('');
+        daySelect.innerHTML = Array.from({length:31}, (_,i)=>i+1).map(d => `<option value="${d}" ${d===now.getDate()?'selected':''}>${d}일</option>`).join('');
+        hourSelect.innerHTML = Array.from({length:24}, (_,i)=>i).map(h => `<option value="${h}" ${h===now.getHours()?'selected':''}>${h}시</option>`).join('');
+        minSelect.innerHTML = Array.from({length:60}, (_,i)=>i).map(m => `<option value="${m}" ${m===now.getMinutes()?'selected':''}>${m}분</option>`).join('');
+    }
+
+    function calculateDetoxTime(){
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        const weight = parseFloat(document.getElementById('weight').value);
+        const degree = parseFloat(alcoholContentInput.value);
+        const totalML = parseInt(displayML.textContent);
+        
+        // 측정 시각 파싱
+        const measuredTime = new Date(
+            document.getElementById('inputYearMeasured').value,
+            document.getElementById('inputMonthMeasured').value - 1,
+            document.getElementById('inputDayMeasured').value,
+            document.getElementById('inputHourMeasured').value,
+            document.getElementById('inputMinuteMeasured').value
+        );
+
+        if(!weight || !totalML) { alert("체중과 섭취량을 입력해주세요."); return; }
+
+        const r = (gender === 'male') ? 0.86 : 0.64;
+        const pureAlcoholGrams = totalML * (degree / 100) * ALCOHOL_SPECIFIC_GRAVITY * ABSORPTION_RATE;
+        const C0 = pureAlcoholGrams / (weight * r * 10); // 최대 BAC 추정
+
+        // 해독에 필요한 총 시간 (시간 단위)
+        const totalHoursNeeded = C0 / BETA;
+        const hoursPart = Math.floor(totalHoursNeeded);
+        const minutesPart = Math.round((totalHoursNeeded - hoursPart) * 60);
+
+        // 측정 시각으로부터 해독 완료 예상 시각 계산
+        const completionTime = new Date(measuredTime.getTime() + (totalHoursNeeded * 3600 * 1000));
+
+        renderResult({
+            measuredTime, completionTime, hoursPart, minutesPart, pureAlcoholGrams, C0
+        });
+    }
+
+    function renderResult({measuredTime, completionTime, hoursPart, minutesPart, pureAlcoholGrams, C0}){
+        resultInitial.style.display = 'none';
+        resultOutput.style.display = 'block';
+
+        const formatTime = (d) => `${d.getMonth()+1}월 ${d.getDate()}일 ${d.getHours()>=12?'오후':'오전'} ${d.getHours()%12||12}시 ${d.getMinutes()}분`;
+
+        resultOutput.innerHTML = `
+            <div class="section-title">⏳ 해독 시간 추정 결과</div>
+            <div class="result">
+                <div class="big">${hoursPart}시간 ${minutesPart}분</div>
+                <div class="sub" style="font-size:1.1rem; line-height:1.5;">해독 완료 예상 시각은<br>
+                <strong style="color:var(--primary);">${formatTime(completionTime)}</strong> 이에요.</div>
+                <div class="meta" style="margin-top:15px;">
+                    <div><strong>음주 측정 시각</strong><div style="color:#4B5860">${formatTime(measuredTime)}</div></div>
+                    <div><strong>순수 알코올</strong><div style="color:#4B5860">${pureAlcoholGrams.toFixed(1)} g</div></div>
+                    <div><strong>혈중 알코올 농도(최대)</strong><div style="color:#4B5860">${C0.toFixed(4)}%</div></div>
+                </div>
+            </div>
+        `;
+        setTimeout(()=>resultOutput.scrollIntoView({behavior:'smooth', block:'center'}), 100);
+    }
+
+    // 공통 UI 핸들러
+    function handleTabClick(e) { e.preventDefault(); showTab(e.currentTarget.getAttribute('data-tab')); }
+    function showTab(name) {
+        document.getElementById('calculatorContent').style.display = (name === 'calculator') ? 'block' : 'none';
+        document.getElementById('journalContent').style.display = (name === 'journal') ? 'block' : 'none';
+        document.getElementById('journalDetailPage').style.display = 'none';
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === name));
+    }
+    function renderJournalList() {
+        const list = document.getElementById('journalListItems');
+        list.innerHTML = Object.keys(JOURNAL_CONTENT).map(id => `
+            <li class="journal-item" onclick="showJournalDetail('${id}')">
+                <div class="journal-icon">${JOURNAL_CONTENT[id].icon}</div>
+                <div class="journal-content"><h3>${JOURNAL_CONTENT[id].title}</h3><p>더 알아보기</p></div>
+            </li>`).join('');
+    }
+    window.showJournalDetail = function(id) {
+        const item = JOURNAL_CONTENT[id];
+        document.getElementById('calculatorContent').style.display = 'none';
+        document.getElementById('journalContent').style.display = 'none';
+        document.getElementById('journalDetailPage').style.display = 'block';
+        document.getElementById('detailTitle').textContent = item.title;
+        document.getElementById('detailContent').innerHTML = item.html;
+    }
+  </script>
+</body>
+</html>
