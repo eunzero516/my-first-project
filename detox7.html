@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🍺 알코올 디톡스 계산기 & 저널</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+  <style>
+    :root{
+      --bg: #F7F9FB;
+      --card: #FFFFFF;
+      --primary: #5989F7;
+      --accent: #27AE60;
+      --danger: #E74C3C;
+      --muted: #6B7280;
+      --border: #E6EEF6;
+      --radius: 14px;
+      --shadow: 0 6px 20px rgba(16,24,40,0.06);
+      --tab-bar-height: 54px;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background: linear-gradient(180deg,var(--bg), #F4F7FB); color:#16202A;
+      -webkit-font-smoothing:antialiased; display:flex; flex-direction: column;
+      padding: calc(var(--tab-bar-height) + 28px) 18px 28px; font-size:16px; line-height:1.4;
+    }
+    .app { width:100%; max-width:520px; margin: 0 auto; }
+    header { text-align:center; margin-bottom:18px; }
+    .title { display:flex; align-items:center; justify-content:center; gap:12px; font-weight:700; color:var(--primary); font-size:1.6rem; }
+    .subtitle { color:var(--muted); font-size:0.95rem; margin-top:6px; }
+
+    .card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:14px; border:1px solid var(--border); }
+    .section-title { font-size:0.98rem; font-weight:600; margin-bottom:10px; color:#243447; }
+
+    label.small { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:6px; }
+    input[type="number"], select, .input-text {
+      width:100%; padding:12px 14px; border-radius:10px; border:1px solid #E6EEF6; background:#FBFDFF;
+      font-size:1rem; color:#102027; outline:none;
+    }
+
+    .drink-btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+    .drink-btn { 
+        padding: 10px; border-radius: 10px; border: 2px solid #E6EEF6; background: white; 
+        font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+    }
+    .drink-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .add-form-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr auto; gap: 8px; align-items: end; }
+    .add-btn { height: 48px; padding: 0 16px; border-radius: 10px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    .selected-list { margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 15px; }
+    .selected-item { display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 0.95rem; }
+    .remove-btn { color: var(--danger); background: none; border: none; font-size: 1.2rem; cursor: pointer; font-weight: bold; }
+
+    .radio-group { display:flex; gap:10px; }
+    .radio-input { display:none; }
+    .radio-label { flex:1; text-align:center; padding:10px; border-radius:10px; border:2px solid #E6EEF6; cursor:pointer; font-weight:600; background:white; }
+    .radio-input:checked + .radio-label{ background:var(--primary); color:white; border-color:var(--primary); }
+
+    .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+    .time-grid select { padding: 12px 8px; font-size: 0.95rem; }
+
+    .sub-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; background: #F0F5FF; color: var(--primary); border: 1px solid var(--primary); margin-top: 15px; }
+    .calculate-btn { width:100%; border:0; padding:16px; border-radius:12px; font-weight:700; font-size:1.1rem; cursor:pointer; background:var(--primary); color:white; margin-top: 10px; }
+
+    .result .big { text-align:center; font-size:1.5rem; font-weight:800; color:var(--accent); }
+    .result .sub { text-align:center; color:#1B3B4D; font-weight:600; margin: 10px 0; }
+    .result .meta { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; color:#4B5860; font-size:0.95rem; margin-top:15px; border-top: 1px dashed var(--border); padding-top: 15px; }
+
+    .disclaimer { background: rgba(231, 76, 60, 0.05); padding: 16px; border-radius: 12px; color: #6B2630; font-size: 0.88rem; line-height: 1.6; margin-top: 20px; }
+
+    /* 저널 스타일 */
+    .journal-list { list-style:none; padding:0; margin:0; }
+    .journal-item { display:flex; align-items:center; gap:15px; padding:15px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+    .journal-item:last-child { border-bottom: none; }
+    .journal-icon { font-size:1.5rem; width:44px; height:44px; background: #F0F5FF; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .journal-content h3 { margin:0; font-size:1rem; font-weight:600; color: #16202A; }
+    .journal-content p { margin:3px 0 0; font-size:0.85rem; color:var(--muted); }
+    
+    .journal-detail-content h3 { font-size: 1.15rem; color: #16202A; margin-top: 24px; margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 10px; }
+    .journal-detail-content p { margin-bottom: 14px; color: #4B5860; line-height: 1.7; }
+    .journal-detail-content strong { color: var(--primary); }
+    .journal-detail-content ul { padding-left: 20px; margin-bottom: 18px; }
+    .journal-detail-content li { margin-bottom: 10px; color: #4B5860; line-height: 1.6; }
+    .journal-detail-content .highlight-box { background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin: 15px 0; }
+    .journal-detail-content .detox-point { color: var(--primary); font-weight: 800; font-size: 1.1rem; margin-top: 30px; display: block; text-align: center; padding: 15px; background: #F0F5FF; border-radius: 12px; }
+
+    .back-button { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; color: var(--primary); font-weight: 700; text-decoration: none; cursor: pointer; }
+
+    .tab-bar { position:fixed; top:0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 520px; height: var(--tab-bar-height); display:flex; background:var(--card); border-bottom:1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index:1000; }
+    .tab-item { display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--muted); font-size:0.9rem; font-weight:700; flex: 1; gap: 6px; border-bottom: 3px solid transparent; }
+    .tab-item.active { color:var(--primary); border-bottom: 3px solid var(--primary); }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div id="calculatorContent">
+        <header>
+          <div class="title">🍺 알코올 디톡스 계산기</div>
+          <div class="subtitle">입력한 정보로 예상 해독 시각을 알려드립니다. (참고용)</div>
+        </header>
+    
+        <section class="card">
+            <div class="section-title">기본 정보</div>
+            <div class="radio-group" style="margin-bottom:12px;">
+                <input class="radio-input" type="radio" id="gender-male" name="gender" value="male" checked>
+                <label class="radio-label" for="gender-male">🧑 남성</label>
+                <input class="radio-input" type="radio" id="gender-female" name="gender" value="female">
+                <label class="radio-label" for="gender-female">👩 여성</label>
+            </div>
+            <input id="weight" type="number" inputmode="decimal" step="0.1" placeholder="체중 (kg) 입력" />
+        </section>
+
+        <section class="card">
+            <div class="section-title">총 섭취량</div>
+            <label class="small">주종 선택</label>
+            <div class="drink-btn-group" id="drinkBtnContainer"></div>
+            <div class="add-form-row">
+                <div>
+                    <label class="small">도수(%)</label>
+                    <input id="drinkDegree" type="number" step="0.1" placeholder="0.0" />
+                </div>
+                <div>
+                    <label class="small">수량</label>
+                    <input id="drinkQty" type="number" step="1" placeholder="0" />
+                </div>
+                <div>
+                    <label class="small">단위</label>
+                    <select id="unitSelector"></select>
+                </div>
+                <button class="add-btn" id="addDrinkBtn">추가</button>
+            </div>
+            <div class="selected-list" id="selectedDrinkList">
+                <div class="muted-note" id="emptyNote" style="text-align:center; font-size:0.9rem;">추가된 술이 없습니다.</div>
+            </div>
+        </section>
+        
+        <section class="card">
+            <div class="section-title">측정 시각</div>
+            <div class="time-grid">
+                <select id="inputYearMeasured"></select>
+                <select id="inputMonthMeasured"></select>
+                <select id="inputDayMeasured"></select>
+                <select id="inputAmPmMeasured"><option value="AM">오전</option><option value="PM">오후</option></select>
+                <select id="inputHourMeasured"></select>
+                <select id="inputMinuteMeasured"></select>
+            </div>
+            <button id="resetTimeBtn" class="sub-btn" type="button">🔄 현재 시각으로 재설정</button>
+        </section>
+
+        <button id="calculateBtn" class="calculate-btn" type="button" style="margin-top:10px;">측정하기</button>
+
+        <section id="resultArea" class="card" style="margin-top:14px">
+            <div id="resultInitial" class="result"><div class="section-title">결과</div><div class="muted-note">정보를 입력하고 측정 버튼을 눌러주세요.</div></div>
+            <div id="resultOutput" style="display:none"></div>
+        </section>
+
+        <div class="disclaimer">⚠️ <strong>주의</strong> 본 계산기는 위드마크 공식을 이용한 이론적인 추정치를 제공합니다. 실제 해독 시간은 개인의 신체 상태에 따라 달라지므로 법적 근거로 사용하지 마세요.</div>
+    </div>
+
+    <div id="journalContent" style="display:none;">
+        <header>
+            <div class="title">📰 디톡스 저널</div>
+            <div class="subtitle">건강한 회복을 돕는 유익한 정보 가이드</div>
+        </header>
+        <section class="card"><ul class="journal-list" id="journalListItems"></ul></section>
+    </div>
+
+    <div id="journalDetailPage" style="display:none;">
+        <header>
+            <div class="back-button" onclick="showTab('journal')">← 목록으로 돌아가기</div>
+            <h2 id="detailTitle" style="text-align:center; margin-bottom: 20px;"></h2>
+        </header>
+        <section class="card detail-card"><div id="detailContent" class="journal-detail-content"></div></section>
+        <section style="height: 40px;"></section>
+    </div>
+  </main>
+
+  <nav class="tab-bar">
+    <a href="#calculator" class="tab-item active" data-tab="calculator"><span>⏳</span><span>계산기</span></a>
+    <a href="#journal" class="tab-item" data-tab="journal"><span>📰</span><span>디톡스 저널</span></a>
+  </nav>
+
+  <script>
+    const ALCOHOL_SPECIFIC_GRAVITY = 0.7894; 
+    const ABSORPTION_RATE = 0.70;             
+    const BETA_RATE = 0.013; 
+
+    const DRINK_DATA = {
+      soju: { name: '소주', deg: 16.5, units: {'잔(50mL)':50,'병(360mL)':360} },
+      beer: { name: '맥주', deg: 5.0, units: {'캔(500mL)':500,'캔(350mL)':350,'병(500mL)':500} },
+      makgeolli: { name: '막걸리', deg: 6.0, units: {'병(750mL)': 750, '잔(300mL)': 300} },
+      wine: { name: '와인', deg: 13.0, units: {'잔(125mL)':125,'병(750mL)':750} },
+      whiskey: { name: '위스키', deg: 40.0, units: {'샷(30mL)':30,'병(750mL)':750} },
+      custom: { name: '기타', deg: 0, units: {'mL':1} }
+    };
+
+    const JOURNAL_CONTENT = {
+        detoxMyths: { 
+            title: "해장 효과, 진짜 vs 오해", 
+            icon: "😵‍💫", 
+            html: `
+                <p>숙취가 심할수록 고통을 빨리 잊기 위해 민간요법을 시도하지만, 검증되지 않은 방법은 간 회복을 더디게 만듭니다.</p>
+                <h3>🍺 해장술: 독을 독으로 제압한다?</h3>
+                <p><strong>의학적으로 가장 위험한 발상입니다.</strong> 해장술은 뇌의 중추신경을 일시적으로 다시 마비시켜 숙취 통증을 잠시 잊게 할 뿐입니다. 간은 전날 마신 알코올 독소(아세트알데히드)를 처리하느라 이미 지친 상태이며, 여기에 추가 알코올이 들어오면 해독 기능이 완전히 과부하되어 간 손상이 가속화됩니다.</p>
+                <div class="highlight-box">💡 <strong>진실:</strong> 해독을 방해하고 취기를 연장할 뿐입니다.</div>
+                <h3>🥵 사우나: 땀으로 알코올을 뺀다?</h3>
+                <p>알코올의 90% 이상은 간에서 효소에 의해 분해됩니다. 땀이나 소변으로 배출되는 양은 10% 미만으로 매우 적습니다. 오히려 음주 후 뜨거운 사우나는 <strong>탈수 현상을 가속화하여 혈중 알코올 농도를 높이고</strong>, 저혈압을 유발해 실신이나 심장 부전의 원인이 될 수 있습니다.</p>
+                <h3>☕ 커피: 정신이 들면 술도 깬다?</h3>
+                <p>카페인은 각성 효과가 있어 일시적으로 졸음을 쫓아주지만, 알코올 대사 속도에는 영향을 주지 않습니다. 오히려 카페인의 이뇨 작용이 탈수를 유발하여 해독에 필수적인 '수분'을 배출시켜 숙취 증상을 악화시킬 수 있습니다.</p>
+                <span class="detox-point">🕒 디톡스 포인트: 수분 섭취, 충분한 수면, 그리고 '시간'만이 유일한 해답입니다.</span>` 
+        },
+        top5foods: { 
+            title: "숙취 해소에 좋은 음식 TOP 5", 
+            icon: "🥑", 
+            html: `
+                <p>술 마신 다음 날, 간의 대사 과정을 돕고 에너지를 공급하는 식품을 섭취하면 회복 속도가 빨라집니다.</p>
+                <h3>1. 계란 (시스테인)</h3>
+                <p>계란의 'L-시스테인' 아미노산은 숙취 원인 물질인 아세트알데히드를 직접 분해하는 효과가 있습니다. 또한 노른자의 콜린 성분은 손상된 간 세포 재생을 돕습니다.</p>
+                <h3>2. 콩나물 (아스파라긴산)</h3>
+                <p>콩나물 뿌리에 풍부한 '아스파라긴산'은 간에서 알코올 분해 효소 생성을 촉진합니다. 국물 형태로 섭취하면 수분과 전해질 보충까지 동시에 가능합니다.</p>
+                <h3>3. 바나나 (칼륨 보충)</h3>
+                <p>알코올은 칼륨을 몸 밖으로 배출시켜 근육 경련이나 두통을 유발합니다. 바나나는 풍부한 칼륨과 당분을 제공하여 전해질 균형을 빠르게 회복시켜 줍니다.</p>
+                <h3>4. 토마토 (라이코펜)</h3>
+                <p>라이코펜은 알코올 분해 시 발생하는 유해 산소를 제거하고 간을 보호하는 강력한 항산화제입니다. 서양에서 토마토 주스를 해장 음료로 즐기는 과학적인 이유입니다.</p>
+                <h3>5. 꿀물 (당분 & 수분)</h3>
+                <p>간이 해독에 집중하는 동안 혈당이 급격히 떨어집니다. 꿀의 과당은 혈당을 높여 어지럼증을 줄이고 알코올 분해 에너지원을 공급합니다.</p>` 
+        },
+        comparetime: { 
+            title: "주종별 알코올 분해 시간 비교", 
+            icon: "⏱️", 
+            html: `
+                <p>해독 시간은 주종보다 '순수 알코올의 총량'이 핵심이지만, 주종별 특성에 따라 숙취 강도는 달라집니다.</p>
+                <h3>🍷 발효주 (와인, 막걸리, 맥주)</h3>
+                <p>발효 과정에서 만들어지는 '동종 화합물(Congeners)' 성분이 많아 증류주보다 숙취가 오래가는 경향이 있습니다. 특히 와인의 이산화황이나 막걸리의 효모 찌꺼기는 두통을 유발하는 주요 원인입니다.</p>
+                <h3>🥃 증류주 (소주, 위스키, 보드카)</h3>
+                <p>비교적 불순물이 적어 분해 자체는 깔끔할 수 있으나, 도수가 높아 혈중 알코올 농도가 가파르게 상승합니다. 뇌에 전달되는 타격이 크므로 주의가 필요합니다.</p>
+                <div class="highlight-box">
+                    <strong>기준 데이터 (남성 70kg 기준):</strong><br>
+                    • 소주 1병: 약 4~5시간<br>
+                    • 맥주 500cc: 약 2~3시간<br>
+                    • 위스키 2샷: 약 3~4시간
+                </div>
+                <p>※ 개인의 체중과 간 대사 능력에 따라 위 시간의 2배 이상 차이가 날 수 있습니다.</p>` 
+        },
+        safesleep: { 
+            title: "음주 후 안전한 수면 가이드", 
+            icon: "😴", 
+            html: `
+                <p>술을 마시고 바로 자는 습관은 신체 회복을 늦추고 때로는 생명을 위협할 수도 있습니다.</p>
+                <h3>🛌 안전한 자세: '회복 자세'</h3>
+                <p>만취 상태에서 천장을 보고 똑바로 누워 자다가 구토를 하면, 토사물이 기도를 막아 질식할 위험이 있습니다. <strong>반드시 옆으로 누워(심스 체위)</strong> 자는 것이 기도를 확보하는 가장 안전한 방법입니다.</p>
+                <h3>🛌 수면의 질 (REM 수면 방해)</h3>
+                <p>알코올은 잠드는 시간은 줄여주지만, 뇌가 깊은 잠(REM 단계)에 들지 못하게 방해합니다. 자는 동안 뇌는 쉬지 못하고 해독 작업에 매달리기 때문에 아침에 일어났을 때 피로감이 극심한 것입니다.</p>
+                <h3>🛌 자기 전 수분 보충</h3>
+                <p>잠든 동안에도 간은 해독을 위해 많은 수분을 사용합니다. 자기 전 미지근한 물 한 컵을 마시는 것은 자는 동안 진행될 디톡스 과정을 돕는 최고의 습관입니다.</p>` 
+        },
+        hydration: { 
+            title: "수분 보충의 중요성", 
+            icon: "💧", 
+            html: `
+                <p>알코올 디톡스의 핵심 키워드는 '희석'과 '배출'입니다.</p>
+                <h3>💧 탈수와의 전쟁</h3>
+                <p>알코올은 뇌의 항이뇨 호르몬 분비를 억제합니다. 마신 술 양의 약 4배에 달하는 수분을 소변으로 강제 배출시키기 때문에 혈액은 걸쭉해지고 세포는 메마르게 됩니다. 이 과정에서 숙취 증상이 심화됩니다.</p>
+                <h3>💧 똑똑하게 물 마시는 법</h3>
+                <ul>
+                    <li><strong>술 한 잔, 물 한 잔:</strong> 술을 마시는 도중 물을 자주 마시면 혈중 알코올 농도의 급상승을 막고 자연스러운 배출을 유도합니다.</li>
+                    <li><strong>이온 음료 활용:</strong> 전해질이 풍부한 스포츠 음료는 물보다 체내 흡수가 빠르며 손실된 미네랄을 즉시 보충해 줍니다.</li>
+                    <li><strong>기상 직후가 골든타임:</strong> 잠에서 깬 뒤 마시는 물 한 잔은 밤새 진행된 해독 작업의 찌꺼기를 청소하는 역할을 합니다.</li>
+                </ul>` 
+        }
+    };
+
+    let selectedDrinks = [];
+    let currentDrinkKey = 'soju';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDrinkButtons();
+      renderJournalList();
+      populateTimeInputs();
+      updateAddForm('soju');
+
+      document.getElementById('addDrinkBtn').addEventListener('click', () => {
+          const deg = parseFloat(document.getElementById('drinkDegree').value);
+          const qty = parseInt(document.getElementById('drinkQty').value);
+          const unit = document.getElementById('unitSelector').value;
+          if(!qty || qty <= 0) return;
+
+          const pureAlcohol = qty * DRINK_DATA[currentDrinkKey].units[unit] * (deg / 100) * ALCOHOL_SPECIFIC_GRAVITY * ABSORPTION_RATE;
+          selectedDrinks.push({ name: DRINK_DATA[currentDrinkKey].name, qty, unit, pureAlcohol });
+          renderSelectedList();
+          document.getElementById('drinkQty').value = '';
+      });
+
+      document.getElementById('calculateBtn').addEventListener('click', calculate);
+      document.getElementById('resetTimeBtn').addEventListener('click', populateTimeInputs);
+      document.querySelectorAll('.tab-item').forEach(tab => tab.addEventListener('click', handleTabClick));
+    });
+
+    function renderDrinkButtons() {
+        const container = document.getElementById('drinkBtnContainer');
+        container.innerHTML = Object.keys(DRINK_DATA).map(k => `
+            <button class="drink-btn ${k==='soju'?'active':''}" onclick="selectDrinkType('${k}', this)">${DRINK_DATA[k].name}</button>
+        `).join('');
+    }
+
+    window.selectDrinkType = (key, btn) => {
+        document.querySelectorAll('.drink-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDrinkKey = key;
+        updateAddForm(key);
+    };
+
+    function updateAddForm(key) {
+        document.getElementById('drinkDegree').value = DRINK_DATA[key].deg || '';
+        document.getElementById('unitSelector').innerHTML = Object.keys(DRINK_DATA[key].units).map(u => `<option value="${u}">${u}</option>`).join('');
+    }
+
+    function renderSelectedList() {
+        const list = document.getElementById('selectedDrinkList');
+        list.innerHTML = selectedDrinks.map((d, i) => `
+            <div class="selected-item">
+                <span>${d.name} ${d.qty}${d.unit.split('(')[0]}</span>
+                <button class="remove-btn" onclick="removeDrink(${i})">×</button>
+            </div>`).join('') || '<div class="muted-note" id="emptyNote" style="text-align:center; font-size:0.9rem;">추가된 술이 없습니다.</div>';
+    }
+
+    window.removeDrink = (i) => { selectedDrinks.splice(i, 1); renderSelectedList(); };
+
+    function populateTimeInputs() {
+        const now = new Date();
+        const hour12 = now.getHours() % 12 || 12;
+        const ampm = now.getHours() >= 12 ? "PM" : "AM";
+        document.getElementById('inputYearMeasured').innerHTML = `<option value="${now.getFullYear()}">${now.getFullYear()}년</option>`;
+        document.getElementById('inputMonthMeasured').innerHTML = Array.from({length:12}, (_,i)=>i+1).map(m => `<option value="${m}" ${m===(now.getMonth()+1)?'selected':''}>${m}월</option>`).join('');
+        document.getElementById('inputDayMeasured').innerHTML = Array.from({length:31}, (_,i)=>i+1).map(d => `<option value="${d}" ${d===now.getDate()?'selected':''}>${d}일</option>`).join('');
+        document.getElementById('inputAmPmMeasured').value = ampm;
+        document.getElementById('inputHourMeasured').innerHTML = Array.from({length:12}, (_,i)=>i+1).map(h => `<option value="${h}" ${h===hour12?'selected':''}>${h}시</option>`).join('');
+        document.getElementById('inputMinuteMeasured').innerHTML = Array.from({length:60}, (_,i)=>i).map(m => `<option value="${m}" ${m===now.getMinutes()?'selected':''}>${m}분</option>`).join('');
+    }
+
+    function calculate() {
+        const weight = parseFloat(document.getElementById('weight').value);
+        if(!weight || selectedDrinks.length === 0) { alert("체중과 술 목록을 확인해주세요."); return; }
+        const totalAlc = selectedDrinks.reduce((sum, d) => sum + d.pureAlcohol, 0);
+        const r = (document.querySelector('input[name="gender"]:checked').value === 'male') ? 0.75 : 0.60;
+        const C0 = totalAlc / (weight * r * 10);
+        const totalHours = C0 / BETA_RATE;
+
+        let h = parseInt(document.getElementById('inputHourMeasured').value);
+        if(document.getElementById('inputAmPmMeasured').value === "PM" && h < 12) h += 12;
+        if(document.getElementById('inputAmPmMeasured').value === "AM" && h === 12) h = 0;
+
+        const mTime = new Date(document.getElementById('inputYearMeasured').value, document.getElementById('inputMonthMeasured').value - 1, document.getElementById('inputDayMeasured').value, h, document.getElementById('inputMinuteMeasured').value);
+        const cTime = new Date(mTime.getTime() + (totalHours * 3600 * 1000));
+        
+        document.getElementById('resultInitial').style.display = 'none';
+        const resOut = document.getElementById('resultOutput');
+        resOut.style.display = 'block';
+        const fT = (d) => `${d.getMonth()+1}월 ${d.getDate()}일 ${d.getHours()>=12?'오후':'오전'} ${d.getHours()%12||12}시 ${d.getMinutes()}분`;
+        
+        resOut.innerHTML = `
+            <div class="section-title">⏳ 해독 시간 추정 결과</div>
+            <div class="result">
+                <div class="big">${Math.floor(totalHours)}시간 ${Math.round((totalHours%1)*60)}분</div>
+                <div class="sub">해독 완료 예상 시각은<br><strong style="color:var(--primary);">${fT(cTime)}</strong> 이에요.</div>
+                <div class="meta">
+                    <div><strong>측정 시각 기준</strong><div style="color:#4B5860">${fT(mTime)}</div></div>
+                    <div><strong>총 순수 알코올</strong><div style="color:#4B5860">${totalAlc.toFixed(1)}g</div></div>
+                </div>
+            </div>`;
+        setTimeout(()=>resOut.scrollIntoView({behavior:'smooth', block:'center'}), 100);
+    }
+
+    function handleTabClick(e) {
+        e.preventDefault();
+        showTab(e.currentTarget.getAttribute('data-tab'));
+    }
+
+    function showTab(name) {
+        document.getElementById('calculatorContent').style.display = 'none';
+        document.getElementById('journalContent').style.display = 'none';
+        document.getElementById('journalDetailPage').style.display = 'none';
+
+        if (name === 'calculator') {
+            document.getElementById('calculatorContent').style.display = 'block';
+        } else if (name === 'journal') {
+            document.getElementById('journalContent').style.display = 'block';
+        }
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === name));
+        window.scrollTo(0,0);
+    }
+
+    function renderJournalList() {
+        document.getElementById('journalListItems').innerHTML = Object.keys(JOURNAL_CONTENT).map(id => `
+            <li class="journal-item" onclick="showJournalDetail('${id}')">
+                <div class="journal-icon">${JOURNAL_CONTENT[id].icon}</div>
+                <div class="journal-content"><h3>${JOURNAL_CONTENT[id].title}</h3><p>전문 보기</p></div>
+            </li>`).join('');
+    }
+
+    window.showJournalDetail = function(id) {
+        const item = JOURNAL_CONTENT[id];
+        document.getElementById('calculatorContent').style.display = 'none';
+        document.getElementById('journalContent').style.display = 'none';
+        document.getElementById('journalDetailPage').style.display = 'block';
+        document.getElementById('detailTitle').textContent = item.title;
+        document.getElementById('detailContent').innerHTML = item.html;
+        window.scrollTo(0,0);
+    }
+  </script>
+</body>
+</html>
