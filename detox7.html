@@ -70,9 +70,19 @@
     .result .sub { text-align:center; color:#1B3B4D; font-weight:600; margin: 10px 0; }
     .result .meta { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; color:#4B5860; font-size:0.95rem; margin-top:15px; border-top: 1px dashed var(--border); padding-top: 15px; }
 
-    .disclaimer { background: rgba(231, 76, 60, 0.05); padding: 16px; border-radius: 12px; color: #6B2630; font-size: 0.88rem; line-height: 1.6; margin-top: 20px; }
+    /* 주의사항 영역: 하단 여백 40px 추가 */
+    .disclaimer { 
+      background: rgba(231, 76, 60, 0.05); 
+      padding: 16px; 
+      border-radius: 12px; 
+      color: #6B2630; 
+      font-size: 0.88rem; 
+      line-height: 1.6; 
+      margin-top: 20px;
+      margin-bottom: 40px; /* 요청하신 하단 여백 추가 */
+    }
+    .disclaimer strong { color: #6B2630; font-weight: 800; }
 
-    /* 저널 스타일 */
     .journal-list { list-style:none; padding:0; margin:0; }
     .journal-item { display:flex; align-items:center; gap:15px; padding:15px 0; border-bottom:1px solid var(--border); cursor:pointer; }
     .journal-item:last-child { border-bottom: none; }
@@ -93,6 +103,8 @@
     .tab-bar { position:fixed; top:0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 520px; height: var(--tab-bar-height); display:flex; background:var(--card); border-bottom:1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index:1000; }
     .tab-item { display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--muted); font-size:0.9rem; font-weight:700; flex: 1; gap: 6px; border-bottom: 3px solid transparent; }
     .tab-item.active { color:var(--primary); border-bottom: 3px solid var(--primary); }
+
+    @media(min-width:520px){ body { padding-top: calc(var(--tab-bar-height) + 28px); } }
   </style>
 </head>
 <body>
@@ -346,6 +358,7 @@
         const weight = parseFloat(document.getElementById('weight').value);
         if(!weight || selectedDrinks.length === 0) { alert("체중과 술 목록을 확인해주세요."); return; }
         const totalAlc = selectedDrinks.reduce((sum, d) => sum + d.pureAlcohol, 0);
+        
         const r = (document.querySelector('input[name="gender"]:checked').value === 'male') ? 0.75 : 0.60;
         const C0 = totalAlc / (weight * r * 10);
         const totalHours = C0 / BETA_RATE;
