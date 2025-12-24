@@ -17,9 +17,8 @@
 
         body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
         
-        .app-title { font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin: 15px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .app-title { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 10px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; }
 
-        /* 달력 컨테이너 */
         .calendar-container { 
             width: 100%; 
             max-width: 950px; 
@@ -27,12 +26,12 @@
             border-radius: 15px; 
             box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
             overflow: hidden; 
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; }
-        .header h2 { margin: 0; font-size: 1.2rem; color: var(--text-dark); }
-        .nav-buttons button { cursor: pointer; border: 1px solid #ddd; background: white; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff; }
+        .header h2 { margin: 0; font-size: 1.1rem; color: var(--text-dark); }
+        .nav-buttons button { cursor: pointer; border: 1px solid #ddd; background: white; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
 
         .weekdays { 
             display: grid; 
@@ -41,25 +40,25 @@
             border-top: 1px solid var(--border); 
             border-bottom: 1px solid var(--border); 
         }
-        .weekday { text-align: center; padding: 10px 0; font-size: 0.75rem; color: #868e96; font-weight: bold; }
+        .weekday { text-align: center; padding: 8px 0; font-size: 0.7rem; color: #868e96; font-weight: bold; }
         .weekday:nth-child(1) { color: var(--holiday); }
         .weekday:nth-child(7) { color: var(--primary); }
 
-        /* 5행/6행 가변 그리드 설정 */
+        /* 행 높이를 110px -> 88px로 타이트하게 조정 */
         .calendar-grid { 
             display: grid; 
             grid-template-columns: repeat(7, minmax(0, 1fr)); 
-            grid-auto-rows: 110px; 
+            grid-auto-rows: 88px; 
         }
 
         .day-cell { 
             border-right: 1px solid var(--border); 
             border-bottom: 1px solid var(--border); 
-            padding: 5px; 
+            padding: 4px; 
             cursor: pointer; 
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 2px;
             min-width: 0; 
             overflow: hidden; 
             background: #fff;
@@ -67,62 +66,79 @@
         .day-cell:nth-child(7n) { border-right: none; }
         .day-cell:hover { background: #f8f9fa; }
         
-        .day-num { font-size: 0.85rem; font-weight: 700; color: #495057; }
+        .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; }
         .other-month { opacity: 0.2; }
 
+        /* 근무 항목: 줄바꿈 허용 */
         .item { 
-            font-size: 0.65rem; 
-            padding: 2px 4px; 
+            font-size: 0.62rem; 
+            padding: 1px 3px; 
             border-radius: 3px; 
             font-weight: 700; 
             text-align: center;
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
+            white-space: normal; 
+            word-break: keep-all; 
+            line-height: 1.1;
+            display: block;
         }
         .item-holiday { background: #fff5f5; color: #fa5252; border: 1px solid #ffc9c9; }
         .item-am { background: #e7f5ff; color: var(--am-color); border: 1px solid #a5d8ff; }
         .item-pm { background: #fff4e6; color: var(--pm-color); border: 1px solid #ffd8a8; }
-        .item-memo { color: #adb5bd; font-size: 0.6rem; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: auto; }
 
-        /* 통계 카드: 배경색 흰색으로 수정 */
-        .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: 1fr; gap: 12px; }
+        /* 메모: 최대 2줄까지 표시되도록 수정 */
+        .item-memo { 
+            color: #adb5bd; 
+            font-size: 0.58rem; 
+            font-style: italic; 
+            margin-top: auto; 
+            padding-top: 1px;
+            border-top: 1px dashed #eee;
+            /* 2줄 제한 설정 */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.2;
+            word-break: break-all;
+        }
+
+        /* 화이트 통계 카드 */
+        .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: 1fr; gap: 10px; }
         @media (min-width: 600px) { .stats-container { grid-template-columns: repeat(3, 1fr); } }
         
         .stat-card { 
-            background: #fff; /* 배경색 흰색 고정 */
-            padding: 20px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            background: #fff;
+            padding: 15px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            border: 1px solid #eee; /* 테두리 추가 */
+            gap: 5px;
+            border: 1px solid #eee;
         }
         
-        /* 왼쪽 강조 테두리 */
-        .card-total { border-left: 6px solid #343a40; }
-        .card-am { border-left: 6px solid var(--am-color); }
-        .card-pm { border-left: 6px solid var(--pm-color); }
+        .card-total { border-left: 5px solid #343a40; }
+        .card-am { border-left: 5px solid var(--am-color); }
+        .card-pm { border-left: 5px solid var(--pm-color); }
         
-        .stat-card h4 { margin: 0; font-size: 0.85rem; color: #868e96; font-weight: 700; }
-        .stat-card .value { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); }
-        .stat-card .sub-value { font-size: 0.85rem; color: #495057; font-weight: 500; }
+        .stat-card h4 { margin: 0; font-size: 0.75rem; color: #868e96; font-weight: 700; }
+        .stat-card .value { font-size: 1.2rem; font-weight: 800; color: var(--text-dark); }
+        .stat-card .sub-value { font-size: 0.75rem; color: #495057; font-weight: 500; }
         .highlight-holiday { color: var(--holiday); font-weight: bold; }
 
         /* 모달 스타일 */
         #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 320px; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; backdrop-filter: blur(3px); }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.95rem; }
-        textarea { width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; font-size: 1rem; resize: none; box-sizing: border-box; }
-        .btn-toggle-group { display: flex; gap: 8px; }
-        .btn-toggle { flex: 1; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9rem; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 10px; font-size: 0.9rem; resize: none; box-sizing: border-box; }
+        .btn-toggle-group { display: flex; gap: 6px; }
+        .btn-toggle { flex: 1; padding: 10px; border: 1px solid #dee2e6; border-radius: 8px; background: white; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
         .btn-toggle.active-blue { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-toggle.active-orange { background: var(--pm-color); color: white; border-color: var(--pm-color); }
         .btn-toggle.active-gray { background: var(--text-dark); color: white; border-color: var(--text-dark); }
         .btn-toggle:disabled { opacity: 0.2; cursor: not-allowed; }
-        .btn-save { width: 100%; background: var(--text-dark); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; cursor: pointer; }
+        .btn-save { width: 100%; background: var(--text-dark); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -133,8 +149,8 @@
         <div class="header">
             <h2 id="monthDisplay"></h2>
             <div class="nav-buttons">
-                <button onclick="moveMonth(-1)">◀ 이전달</button>
-                <button onclick="moveMonth(1)">다음달 ▶</button>
+                <button onclick="moveMonth(-1)">◀ 이전</button>
+                <button onclick="moveMonth(1)">다음 ▶</button>
             </div>
         </div>
         <div class="weekdays">
@@ -147,25 +163,25 @@
 
     <div class="stats-container">
         <div class="stat-card card-total">
-            <h4>이번 달 근무 현황</h4>
+            <h4>근무 현황</h4>
             <div class="value">총 <span id="statTotalDays">0</span>일 근무</div>
-            <div class="sub-value" id="statHolidayDetail">이번 달 휴일은 <span class="highlight-holiday">0일</span>입니다.</div>
+            <div class="sub-value" id="statHolidayDetail">휴일 <span class="highlight-holiday">0일</span></div>
         </div>
         <div class="stat-card card-am">
             <h4>오전반 상세</h4>
             <div class="value" id="statAMTotal">0일</div>
-            <div class="sub-value" id="statAMDetail">오전 2탕: 0일, 오전 3탕: 0일</div>
+            <div class="sub-value" id="statAMDetail">2탕: 0일, 3탕: 0일</div>
         </div>
         <div class="stat-card card-pm">
             <h4>오후반 상세</h4>
             <div class="value" id="statPMTotal">0일</div>
-            <div class="sub-value" id="statPMDetail">오후 2탕: 0일, 오후 3탕: 0일</div>
+            <div class="sub-value" id="statPMDetail">2탕: 0일, 3탕: 0일</div>
         </div>
     </div>
 
     <div class="overlay" id="overlay" onclick="closeModal()"></div>
     <div id="modal">
-        <h3 id="modalDate" style="margin: 0 0 15px 0;">날짜 선택</h3>
+        <h3 id="modalDate" style="margin: 0 0 15px 0; font-size: 1.1rem;">날짜 선택</h3>
         <div class="form-group">
             <label style="display: flex; align-items: center; cursor: pointer;">
                 <input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width: 18px; height: 18px; margin-right: 10px;"> 🌴 휴일 체크
@@ -194,8 +210,8 @@
 
 <script>
     let viewDate = new Date();
-    // 데이터 저장 키 버전 업데이트 V10
-    let db = JSON.parse(localStorage.getItem('bbanggomWorkLogV10') || '{}');
+    // 데이터 보존 버전 업데이트 V12
+    let db = JSON.parse(localStorage.getItem('bbanggomWorkLogV12') || '{}');
     let activeKey = "";
     let selectedShift = null;
     let selectedTang = null;
@@ -207,13 +223,11 @@
         const month = viewDate.getMonth();
         document.getElementById('monthDisplay').innerText = `${year}년 ${month + 1}월`;
         
-        // 이번 달 1일의 요일과 마지막 날짜
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month + 1, 0).getDate();
         
-        // 필요한 총 셀 수 계산 (5행인지 6행인지 결정)
         const totalDaysNeeded = firstDay + lastDate;
-        const totalCells = totalDaysNeeded > 35 ? 42 : 35; // 5행(35) 또는 6행(42)
+        const totalCells = totalDaysNeeded > 35 ? 42 : 35; 
 
         const startDate = new Date(year, month, 1);
         startDate.setDate(startDate.getDate() - firstDay);
@@ -261,11 +275,11 @@
 
     function updateStatsUI(s) {
         document.getElementById('statTotalDays').innerText = s.total;
-        document.getElementById('statHolidayDetail').innerHTML = `이번 달 휴일은 <span class="highlight-holiday">${s.holiday}일</span>입니다.`;
+        document.getElementById('statHolidayDetail').innerHTML = `휴일 <span class="highlight-holiday">${s.holiday}일</span>`;
         document.getElementById('statAMTotal').innerText = `${s.am}일`;
-        document.getElementById('statAMDetail').innerText = `오전 2탕: ${s.am2}일, 오전 3탕: ${s.am3}일`;
+        document.getElementById('statAMDetail').innerText = `2탕: ${s.am2}, 3탕: ${s.am3}`;
         document.getElementById('statPMTotal').innerText = `${s.pm}일`;
-        document.getElementById('statPMDetail').innerText = `오후 2탕: ${s.pm2}일, 오후 3탕: ${s.pm3}일`;
+        document.getElementById('statPMDetail').innerText = `2탕: ${s.pm2}, 3탕: ${s.pm3}`;
     }
 
     function setShift(val) { selectedShift = (selectedShift === val) ? null : val; updateButtons(); }
@@ -309,7 +323,7 @@
             count: selectedTang,
             memo: document.getElementById('memo').value
         };
-        localStorage.setItem('bbanggomWorkLogV10', JSON.stringify(db));
+        localStorage.setItem('bbanggomWorkLogV12', JSON.stringify(db));
         render();
         closeModal();
     }
