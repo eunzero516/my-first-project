@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>빵곰이 근무표</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --holiday: #ff6b6b;
+            --border: #e9ecef;
+            --am-color: #1971c2;
+            --pm-color: #fd7e14;
+            --bg: #f8f9fa;
+            --text-dark: #333;
+        }
+
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        .app-title { font-size: 2.2rem; font-weight: 800; color: var(--text-dark); margin-bottom: 25px; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+
+        .calendar-container { width: 100%; max-width: 950px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 20px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background: #fff; }
+        .header h2 { margin: 0; font-size: 1.5rem; color: var(--text-dark); }
+        .nav-buttons button { cursor: pointer; border: 1px solid #ddd; background: white; padding: 8px 18px; border-radius: 8px; font-weight: 600; transition: 0.2s; color: #495057; }
+        .nav-buttons button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); background: #fafbfc; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .weekday { text-align: center; padding: 12px 0; font-size: 0.85rem; color: #868e96; font-weight: bold; }
+        .weekday:nth-child(1) { color: var(--holiday); }
+        .weekday:nth-child(7) { color: var(--primary); }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(6, 110px); }
+        .day-cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: background 0.1s; }
+        .day-cell:nth-child(7n) { border-right: none; }
+        .day-cell:hover { background: #f1f3f5; }
+        .day-num { font-size: 0.95rem; font-weight: 700; color: #495057; }
+        .other-month { opacity: 0.2; }
+
+        .item { font-size: 0.72rem; padding: 3px 6px; border-radius: 4px; font-weight: 700; border: 1px solid transparent; text-align: center; }
+        .item-holiday { background: #fff5f5; color: #fa5252; border-color: #ffc9c9; }
+        .item-am { background: #e7f5ff; color: var(--am-color); border-color: #a5d8ff; }
+        .item-pm { background: #fff4e6; color: var(--pm-color); border-color: #ffd8a8; }
+        .item-memo { color: #adb5bd; font-size: 0.65rem; font-weight: normal; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 10px; }
+        .stat-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid #ddd; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .card-total { border-left-color: var(--text-dark); }
+        .card-am { border-left-color: var(--am-color); }
+        .card-pm { border-left-color: var(--pm-color); }
+        
+        .stat-card h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: #868e96; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 800; color: var(--text-dark); }
+        .stat-card .sub-value { font-size: 0.85rem; color: #495057; margin-top: 8px; line-height: 1.5; font-weight: 500; }
+        .highlight-holiday { color: var(--holiday); font-weight: bold; }
+
+        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); z-index: 100; width: 320px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; backdrop-filter: blur(2px); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; color: var(--text-dark); }
+        textarea { width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; box-sizing: border-box; font-size: 1rem; resize: none; }
+        .btn-toggle-group { display: flex; gap: 8px; }
+        .btn-toggle { flex: 1; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; transition: 0.2s; color: #495057; }
+        .btn-toggle.active-blue { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-toggle.active-orange { background: var(--pm-color); color: white; border-color: var(--pm-color); }
+        .btn-toggle.active-gray { background: var(--text-dark); color: white; border-color: var(--text-dark); }
+        
+        /* 비활성 상태 스타일 */
+        .btn-toggle:disabled { opacity: 0.3; cursor: not-allowed; background: #f1f3f5; color: #adb5bd; border-color: #dee2e6; }
+
+        .btn-save { width: 100%; background: var(--text-dark); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <h1 class="app-title">🧸 빵곰이 근무표</h1>
+
+    <div class="calendar-container">
+        <div class="header">
+            <h2 id="monthDisplay"></h2>
+            <div class="nav-buttons">
+                <button onclick="moveMonth(-1)">이전달</button>
+                <button onclick="moveMonth(1)">다음달</button>
+            </div>
+        </div>
+        <div class="weekdays">
+            <div class="weekday">일</div><div class="weekday">월</div><div class="weekday">화</div>
+            <div class="weekday">수</div><div class="weekday">목</div><div class="weekday">금</div>
+            <div class="weekday">토</div>
+        </div>
+        <div class="calendar-grid" id="grid"></div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card card-total">
+            <h4>이번 달 근무 현황</h4>
+            <div class="value">총 <span id="statTotalDays">0</span>일 근무</div>
+            <div class="sub-value" id="statHolidayDetail">이번 달 휴일은 0일입니다.</div>
+        </div>
+        <div class="stat-card card-am">
+            <h4>오전반 상세</h4>
+            <div class="value" id="statAMTotal">0일</div>
+            <div class="sub-value" id="statAMDetail">오전 2탕: 0일, 오전 3탕: 0일</div>
+        </div>
+        <div class="stat-card card-pm">
+            <h4>오후반 상세</h4>
+            <div class="value" id="statPMTotal">0일</div>
+            <div class="sub-value" id="statPMDetail">오후 2탕: 0일, 오후 3탕: 0일</div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
+    <div id="modal">
+        <h3 id="modalDate" style="margin: 0 0 20px 0; color: var(--text-dark);">날짜 선택</h3>
+        <div class="form-group">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width: 18px; height: 18px; margin-right: 10px;"> 🌴 휴일(OFF) 체크
+            </label>
+        </div>
+        <div class="form-group">
+            <label id="shiftLabel">근무 타임</label>
+            <div class="btn-toggle-group">
+                <button class="btn-toggle" id="shiftAM" onclick="setShift('오전')">오전반</button>
+                <button class="btn-toggle" id="shiftPM" onclick="setShift('오후')">오후반</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="tangLabel">업무 횟수</label>
+            <div class="btn-toggle-group">
+                <button class="btn-toggle" id="tang2" onclick="setTang(2)">2탕</button>
+                <button class="btn-toggle" id="tang3" onclick="setTang(3)">3탕</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>메모</label>
+            <textarea id="memo" rows="2"></textarea>
+        </div>
+        <button class="btn-save" onclick="save()">저장 완료</button>
+    </div>
+
+<script>
+    let viewDate = new Date();
+    let db = JSON.parse(localStorage.getItem('bbanggomWorkLogV7') || '{}');
+    let activeKey = "";
+    let selectedShift = null;
+    let selectedTang = null;
+
+    function render() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        const year = viewDate.getFullYear();
+        const month = viewDate.getMonth();
+        document.getElementById('monthDisplay').innerText = `${year}년 ${month + 1}월`;
+        const firstDay = new Date(year, month, 1).getDay();
+        const startDate = new Date(year, month, 1);
+        startDate.setDate(startDate.getDate() - firstDay);
+
+        let stats = { total: 0, holiday: 0, am: 0, am2: 0, am3: 0, pm: 0, pm2: 0, pm3: 0 };
+
+        for (let i = 0; i < 42; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+            const isThisMonth = date.getMonth() === month;
+            const cell = document.createElement('div');
+            cell.className = `day-cell ${isThisMonth ? '' : 'other-month'}`;
+            let content = `<div class="day-num">${date.getDate()}</div>`;
+
+            if (db[key]) {
+                const data = db[key];
+                if (isThisMonth) {
+                    if (data.isHoliday) stats.holiday++;
+                    else if (data.shift) {
+                        stats.total++;
+                        if (data.shift === '오전') {
+                            stats.am++;
+                            if (data.count == 2) stats.am2++; if (data.count == 3) stats.am3++;
+                        } else {
+                            stats.pm++;
+                            if (data.count == 2) stats.pm2++; if (data.count == 3) stats.pm3++;
+                        }
+                    }
+                }
+                if (data.isHoliday) content += `<div class="item item-holiday">🌴 휴일</div>`;
+                else if (data.shift) {
+                    const shiftClass = data.shift === '오전' ? 'item-am' : 'item-pm';
+                    content += `<div class="item ${shiftClass}">${data.shift} ${data.count}탕</div>`;
+                }
+                if (data.memo) content += `<div class="item-memo">${data.memo}</div>`;
+            }
+            cell.innerHTML = content;
+            cell.onclick = () => openModal(key);
+            grid.appendChild(cell);
+        }
+        updateStatsUI(stats);
+    }
+
+    function updateStatsUI(s) {
+        document.getElementById('statTotalDays').innerText = s.total;
+        document.getElementById('statHolidayDetail').innerHTML = `이번 달 휴일은 <span class="highlight-holiday">${s.holiday}일</span>입니다.`;
+        document.getElementById('statAMTotal').innerText = `${s.am}일`;
+        document.getElementById('statAMDetail').innerText = `오전 2탕: ${s.am2}일, 오전 3탕: ${s.am3}일`;
+        document.getElementById('statPMTotal').innerText = `${s.pm}일`;
+        document.getElementById('statPMDetail').innerText = `오후 2탕: ${s.pm2}일, 오후 3탕: ${s.pm3}일`;
+    }
+
+    function setShift(val) { selectedShift = (selectedShift === val) ? null : val; updateButtons(); }
+    function setTang(val) { selectedTang = (selectedTang === val) ? null : val; updateButtons(); }
+
+    function updateButtons() {
+        const isHoliday = document.getElementById('isHoliday').checked;
+        
+        // 휴일 체크 시 선택값 초기화
+        if (isHoliday) {
+            selectedShift = null;
+            selectedTang = null;
+        }
+
+        const shiftAM = document.getElementById('shiftAM');
+        const shiftPM = document.getElementById('shiftPM');
+        const tang2 = document.getElementById('tang2');
+        const tang3 = document.getElementById('tang3');
+
+        // 버튼 비활성화 상태 업데이트
+        [shiftAM, shiftPM, tang2, tang3].forEach(btn => btn.disabled = isHoliday);
+
+        // 클래스 업데이트
+        shiftAM.className = 'btn-toggle' + (selectedShift === '오전' ? ' active-blue' : '');
+        shiftPM.className = 'btn-toggle' + (selectedShift === '오후' ? ' active-orange' : '');
+        tang2.className = 'btn-toggle' + (selectedTang === 2 ? ' active-gray' : '');
+        tang3.className = 'btn-toggle' + (selectedTang === 3 ? ' active-gray' : '');
+
+        // 라벨 색상 연하게 변경 (옵션)
+        document.getElementById('shiftLabel').style.opacity = isHoliday ? '0.5' : '1';
+        document.getElementById('tangLabel').style.opacity = isHoliday ? '0.5' : '1';
+    }
+
+    function openModal(key) {
+        activeKey = key;
+        const data = db[key] || { isHoliday: false, shift: null, count: null, memo: '' };
+        document.getElementById('modalDate').innerText = key;
+        document.getElementById('isHoliday').checked = data.isHoliday;
+        document.getElementById('memo').value = data.memo;
+        selectedShift = data.shift;
+        selectedTang = data.count;
+        updateButtons();
+        document.getElementById('modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    function save() {
+        db[activeKey] = {
+            isHoliday: document.getElementById('isHoliday').checked,
+            shift: selectedShift,
+            count: selectedTang,
+            memo: document.getElementById('memo').value
+        };
+        localStorage.setItem('bbanggomWorkLogV7', JSON.stringify(db));
+        render();
+        closeModal();
+    }
+
+    function moveMonth(offset) { viewDate.setMonth(viewDate.getMonth() + offset); render(); }
+    render();
+</script>
+</body>
+</html>
