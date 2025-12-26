@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>빵곰이 근무표</title>
+    <link rel="icon" href="https://postfiles.pstatic.net/MjAyNTEyMjZfMjgg/MDAxNzY2NzA1ODkxNDI4.jwR_hmBeX73gNUybaFzK1piDE3Dp6NPgib30YcaMvaQg.7BxiiFsCLAVzNkdQdORGL7WAVlKYT_a-_aaaIvT47gsg.PNG/image_1.png?type=w773" type="image/png">
     <style>
         :root {
             --primary: #4a90e2; --holiday: #ff6b6b; --sat-color: #1c7ed6; 
@@ -64,7 +65,6 @@
         @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
         @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
 
-        /* 모달 통합 스타일 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; backdrop-filter: blur(3px); }
         .modal-content { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 340px; }
         .form-group { margin-bottom: 22px; } 
@@ -205,7 +205,6 @@
         document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
     }
 
-    // 모달 관리
     function openEditModal(k) {
         activeKey = k; const data = db[k] || { isHoliday: false, shift: null, count: null, memo: '' };
         document.getElementById('modalDate').innerText = k; document.getElementById('isHoliday').checked = data.isHoliday;
@@ -217,13 +216,10 @@
     
     function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "toast show"; setTimeout(() => t.className = "toast", 3000); }
 
-    // 데이터 로직 강화
     function exportData() {
         try {
             const raw = JSON.stringify(db);
-            const encoded = btoa(unescape(encodeURIComponent(raw))); // 유니코드 안전 인코딩
-            
-            // 복사 시도
+            const encoded = btoa(unescape(encodeURIComponent(raw)));
             const tempInput = document.createElement("textarea");
             tempInput.value = encoded;
             document.body.appendChild(tempInput);
@@ -238,7 +234,7 @@
         const code = document.getElementById('importArea').value.trim();
         if (!code) return;
         try {
-            const decoded = decodeURIComponent(escape(atob(code))); // 유니코드 안전 디코딩
+            const decoded = decodeURIComponent(escape(atob(code)));
             const imported = JSON.parse(decoded);
             if (confirm('기존 데이터를 덮어쓰시겠습니까?')) {
                 db = imported;
