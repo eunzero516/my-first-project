@@ -140,7 +140,6 @@
     let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
     let activeKey = "", selectedShift = null, selectedTang = null;
 
-    // 2025-2030 한국 공휴일 마스터 데이터 (수동 교정)
     const baseHolidays = {
         "2025-01-01":"신정","2025-01-28":"설날연휴","2025-01-29":"설날","2025-01-30":"설날연휴","2025-03-01":"삼일절","2025-03-03":"대체공휴일","2025-05-05":"어린이날/부처님오신날","2025-05-06":"대체공휴일","2025-06-06":"현충일","2025-08-15":"광복절","2025-10-03":"개천절","2025-10-05":"추석연휴","2025-10-06":"추석","2025-10-07":"추석연휴","2025-10-08":"대체공휴일","2025-10-09":"한글날","2025-12-25":"크리스마스",
         "2026-01-01":"신정","2026-02-16":"설날연휴","2026-02-17":"설날","2026-02-18":"설날연휴","2026-03-01":"삼일절","2026-03-02":"대체공휴일","2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-05-25":"대체공휴일","2026-06-06":"현충일","2026-08-15":"광복절","2026-08-17":"대체공휴일","2026-09-24":"추석연휴","2026-09-25":"추석","2026-09-26":"추석연휴","2026-10-03":"개천절","2026-10-05":"대체공휴일","2026-10-09":"한글날","2026-12-25":"크리스마스",
@@ -214,18 +213,18 @@
     }
     function openImportModal() { document.getElementById('importArea').value = ""; document.getElementById('overlay').style.display = 'block'; document.getElementById('importModal').style.display = 'block'; }
     function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('modal').style.display = 'none'; document.getElementById('importModal').style.display = 'none'; }
-    
     function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "toast show"; setTimeout(() => t.className = "toast", 3000); }
 
-    // 데이터 복사/불러오기 강화
+    // 모달 데이터 복사/불러오기 최적화 로직
     function exportData() {
         try {
-            // 한글 포함 데이터를 위한 표준 변환
+            // 한글 포함 데이터를 위한 강력한 UTF-8 인코딩 (TextEncoder 사용)
             const jsonStr = JSON.stringify(db);
-            const encoded = btoa(encodeURIComponent(jsonStr)); 
+            const bytes = new TextEncoder().encode(jsonStr);
+            const base64 = btoa(String.fromCharCode(...bytes));
             
             const tempInput = document.createElement("textarea");
-            tempInput.value = encoded;
+            tempInput.value = base64;
             document.body.appendChild(tempInput);
             tempInput.select();
             document.execCommand("copy");
@@ -236,13 +235,18 @@
 
     function executeImport() {
         let code = document.getElementById('importArea').value;
-        // 공백 및 줄바꿈 문자 완벽 제거
-        code = code.replace(/[\r\n\s]/gm, "");
+        // 공백, 엔터, 특수문자 완벽 제거 (오직 Base64 유효 문자만 남김)
+        code = code.replace(/[^A-Za-z0-9+/=]/g, "");
         
         if (!code) return;
         try {
-            const decoded = decodeURIComponent(atob(code));
-            const imported = JSON.parse(decoded);
+            // UTF-8 디코딩 (TextDecoder 사용)
+            const binary = atob(code);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            const jsonStr = new TextDecoder().decode(bytes);
+            const imported = JSON.parse(jsonStr);
+            
             if (confirm('기존 데이터를 덮어쓰시겠습니까?')) {
                 db = imported;
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
@@ -252,7 +256,7 @@
             }
         } catch (e) { 
             console.error(e);
-            alert('유효하지 않은 데이터 코드입니다. 코드를 모두 정확히 복사했는지 확인해 주세요.'); 
+            alert('유효하지 않은 데이터 코드입니다. 메신저 앱에서 보낼 때 텍스트가 잘리지 않았는지 확인해 주세요.'); 
         }
     }
 
