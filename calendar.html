@@ -9,12 +9,12 @@
             --primary: #4a90e2; 
             --holiday: #ff6b6b; /* 일요일/공휴일 빨간색 */
             --sat-color: #1c7ed6; /* 토요일 파란색 */
-            --user-holiday-cell-bg: #f2fdf7; /* 직접 체크한 휴일 배경 */
-            --user-holiday-text: #099268; /* 직접 체크한 휴일 텍스트 */
+            --user-holiday-cell-bg: #f2fdf7; /* 직접 체크한 휴일 연녹색 배경 */
+            --user-holiday-text: #099268; 
             --border: #e9ecef;
             --am-color: #1971c2; --am-bg: #e7f5ff;
             --pm-color: #fd7e14; --pm-bg: #fff4e6;
-            --bg-standard: #f8f9fa; 
+            --bg-standard: #f8f9fa; /* 전체 배경색 */
             --text-dark: #333;
         }
 
@@ -35,7 +35,7 @@
         
         .btn-today {
             background: #f1f3f5; color: var(--text-dark); border: 1px solid #dee2e6;
-            padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
             cursor: pointer; margin-left: 4px; transition: all 0.2s;
         }
         .btn-today:hover { background: var(--text-dark); color: white; border-color: var(--text-dark); }
@@ -55,8 +55,6 @@
         .user-holiday-active { background-color: var(--user-holiday-cell-bg) !important; }
 
         .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; display: flex; align-items: center; }
-        
-        /* 오늘 날짜 하이라이트: 검정색 배경으로 변경 */
         .today-circle {
             background: var(--text-dark); color: white !important;
             width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
@@ -84,15 +82,21 @@
         .stat-card .sub-value { font-size: 0.65rem; color: #495057; font-weight: 500; word-break: keep-all; }
         .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
 
-        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 320px; }
+        #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 320px; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; backdrop-filter: blur(3px); }
-        textarea { width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 10px; font-size: 0.9rem; resize: none; box-sizing: border-box; }
-        .btn-toggle-group { display: flex; gap: 6px; }
-        .btn-toggle { flex: 1; padding: 10px; border: 1px solid #dee2e6; border-radius: 8px; background: white; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        
+        .form-group { margin-bottom: 22px; } 
+        .form-group label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; }
+        
+        textarea { width: 100%; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; font-size: 0.95rem; resize: none; box-sizing: border-box; }
+        .btn-toggle-group { display: flex; gap: 8px; }
+        .btn-toggle { flex: 1; padding: 12px; border: 1px solid #dee2e6; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+        
         .btn-toggle.active-blue { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-toggle.active-orange { background: var(--pm-color); color: white; border-color: var(--pm-color); }
         .btn-toggle.active-gray { background: var(--text-dark); color: white; border-color: var(--text-dark); }
-        .btn-save { width: 100%; background: var(--text-dark); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
+        
+        .btn-save { width: 100%; background: var(--text-dark); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -141,11 +145,30 @@
 
     <div class="overlay" id="overlay" onclick="closeModal()"></div>
     <div id="modal">
-        <h3 id="modalDate" style="margin: 0 0 15px 0; font-size: 1.1rem;">날짜 선택</h3>
-        <div class="form-group"><label style="display: flex; align-items: center; cursor: pointer;"><input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width: 18px; height: 18px; margin-right: 10px;"> 🌴 휴일 체크</label></div>
-        <div class="form-group"><label id="shiftLabel">근무 타임</label><div class="btn-toggle-group"><button class="btn-toggle" id="shiftAM" onclick="setShift('오전')">오전</button><button class="btn-toggle" id="shiftPM" onclick="setShift('오후')">오후</button></div></div>
-        <div class="form-group"><label id="tangLabel">업무 횟수</label><div class="btn-toggle-group"><button class="btn-toggle" id="tang2" onclick="setTang(2)">2회</button><button class="btn-toggle" id="tang3" onclick="setTang(3)">3회</button></div></div>
-        <div class="form-group"><label>메모</label><textarea id="memo" rows="2"></textarea></div>
+        <h3 id="modalDate" style="margin: 0 0 20px 0; font-size: 1.2rem;">날짜 선택</h3>
+        <div class="form-group">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width: 20px; height: 20px; margin-right: 10px;"> 🌴 휴일 체크
+            </label>
+        </div>
+        <div class="form-group">
+            <label id="shiftLabel">근무 타임</label>
+            <div class="btn-toggle-group">
+                <button class="btn-toggle" id="shiftAM" onclick="setShift('오전')">오전</button>
+                <button class="btn-toggle" id="shiftPM" onclick="setShift('오후')">오후</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="tangLabel">업무 횟수</label>
+            <div class="btn-toggle-group">
+                <button class="btn-toggle" id="tang2" onclick="setTang(2)">2회</button>
+                <button class="btn-toggle" id="tang3" onclick="setTang(3)">3회</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>메모</label>
+            <textarea id="memo" rows="2" placeholder="간단한 메모 입력"></textarea>
+        </div>
         <button class="btn-save" onclick="save()">저장 완료</button>
     </div>
 
@@ -153,34 +176,25 @@
     let viewDate = new Date();
     const STORAGE_KEY = 'bbanggom_stable_data';
     let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    let activeKey = "", selectedShift = null, selectedTang = null, holidaysCache = {};
+    let activeKey = "", selectedShift = null, selectedTang = null;
 
+    // 2025-2030 한국 공휴일 완벽 반영
     const baseHolidays = {
-        "2026-12-25": "크리스마스", "2027-12-25": "크리스마스", "2028-12-25": "크리스마스",
-        "2029-12-25": "크리스마스", "2030-12-25": "크리스마스"
+        // 2025
+        "2025-01-01": "신정", "2025-01-28": "설날연휴", "2025-01-29": "설날", "2025-01-30": "설날연휴", "2025-03-01": "삼일절", "2025-03-03": "대체공휴일", "2025-05-05": "어린이날/부처님오신날", "2025-05-06": "대체공휴일", "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절", "2025-10-06": "추석", "2025-10-09": "한글날", "2025-12-25": "크리스마스",
+        // 2026-2030
+        "2026-02-17": "설날", "2026-05-24": "부처님오신날", "2026-09-25": "추석", "2026-12-25": "크리스마스",
+        "2027-02-07": "설날", "2027-05-13": "부처님오신날", "2027-09-15": "추석", "2027-12-25": "크리스마스",
+        "2028-01-27": "설날", "2028-05-02": "부처님오신날", "2028-10-03": "추석/개천절", "2028-12-25": "크리스마스",
+        "2029-02-13": "설날", "2029-05-20": "부처님오신날", "2029-09-22": "추석", "2029-12-25": "크리스마스",
+        "2030-02-03": "설날", "2030-05-09": "부처님오신날", "2030-09-12": "추석", "2030-12-25": "크리스마스"
     };
-
-    async function loadHolidays(year) {
-        if (holidaysCache[year]) return;
-        try {
-            const resp = await fetch(`https://cdn.jsdelivr.net/gh/distbe/holidays@gh-pages/${year}.json`);
-            if (resp.ok) {
-                const data = await resp.json();
-                data.forEach(h => { 
-                    if(h.holiday) {
-                        const hName = (h.name === '기독탄신일' || h.name === '성탄절') ? '크리스마스' : h.name;
-                        baseHolidays[h.date] = hName; 
-                    }
-                });
-                holidaysCache[year] = true;
-            }
-        } catch (e) {}
-    }
 
     function initSelects(year, month) {
         const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
         ySel.innerHTML = ''; mSel.innerHTML = '';
-        for (let y = 2026; y <= 2030; y++) {
+        // 2025년부터 2030년까지 선택 가능하도록 수정
+        for (let y = 2025; y <= 2030; y++) {
             const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y}년`;
             if (y === year) opt.selected = true; ySel.appendChild(opt);
         }
@@ -195,12 +209,9 @@
         render();
     }
 
-    function jumpToToday() {
-        viewDate = new Date();
-        render();
-    }
+    function jumpToToday() { viewDate = new Date(); render(); }
 
-    async function render() {
+    function render() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         const year = viewDate.getFullYear(), month = viewDate.getMonth();
@@ -208,7 +219,6 @@
         const realToday = new Date(); 
         
         initSelects(year, month);
-        await loadHolidays(year);
 
         const firstDay = new Date(year, month, 1).getDay();
         const totalCells = (firstDay + lastDate) > 35 ? 42 : 35;
@@ -223,10 +233,7 @@
             const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
             const isThisMonth = date.getMonth() === month;
             const dayOfWeek = date.getDay();
-            
-            const isToday = date.getFullYear() === realToday.getFullYear() && 
-                          date.getMonth() === realToday.getMonth() && 
-                          date.getDate() === realToday.getDate();
+            const isToday = date.getFullYear() === realToday.getFullYear() && date.getMonth() === realToday.getMonth() && date.getDate() === realToday.getDate();
             
             const cell = document.createElement('div');
             cell.className = `day-cell ${isThisMonth ? '' : 'other-month'}`;
@@ -237,7 +244,6 @@
             else if (dayOfWeek === 6) dateClass += ' saturday-date';
             
             const dateNumDisplay = isToday ? `<span class="today-circle">${date.getDate()}</span>` : date.getDate();
-            
             let content = `<div class="${dateClass}">${dateNumDisplay}</div>`;
             if (holidayName) content += `<div class="holiday-name">${holidayName}</div>`;
 
