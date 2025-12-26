@@ -17,9 +17,8 @@
 
         body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
         
-        /* 타이틀 섹션 */
         .app-title { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 10px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; }
-        .app-logo { width: 45px; height: auto; border-radius: 8px; }
+        .app-logo { width: 45px; height: auto; }
 
         .calendar-container { 
             width: 100%; max-width: 950px; background: white; border-radius: 15px; 
@@ -34,7 +33,6 @@
         .weekday { text-align: center; padding: 8px 0; font-size: 0.7rem; color: #868e96; font-weight: bold; }
         .weekday:nth-child(1), .weekday:nth-child(7) { color: var(--holiday); }
 
-        /* 타이트한 행 높이 */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 88px; }
 
         .day-cell { 
@@ -49,7 +47,6 @@
         .holiday-name { font-size: 0.55rem; color: var(--holiday); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
         .other-month { opacity: 0.2; }
 
-        /* 근무 항목 및 메모 스타일 */
         .item { font-size: 0.62rem; padding: 1px 3px; border-radius: 3px; font-weight: 700; text-align: center; white-space: normal; word-break: keep-all; line-height: 1.1; display: block; }
         .item-holiday { background: #fff5f5; color: #fa5252; border: 1px solid #ffc9c9; }
         .item-am { background: #e7f5ff; color: var(--am-color); border: 1px solid #a5d8ff; }
@@ -61,7 +58,7 @@
             overflow: hidden; line-height: 1.2; word-break: break-all;
         }
 
-        /* 화이트 통계 카드 */
+        /* 통계 카드 */
         .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: 1fr; gap: 10px; }
         @media (min-width: 600px) { .stats-container { grid-template-columns: repeat(3, 1fr); } }
         
@@ -75,7 +72,7 @@
         .stat-card .sub-value { font-size: 0.75rem; color: #495057; font-weight: 500; }
         .highlight-holiday { color: var(--holiday); font-weight: bold; }
 
-        /* 모달 스타일 */
+        /* 모달 */
         #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 320px; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; backdrop-filter: blur(3px); }
         .form-group { margin-bottom: 15px; }
@@ -116,9 +113,9 @@
 
     <div class="stats-container">
         <div class="stat-card card-total">
-            <h4>근무 현황</h4>
-            <div class="value">총 <span id="statTotalDays">0</span>일 근무</div>
-            <div class="sub-value" id="statHolidayDetail">휴일 <span class="highlight-holiday">0일</span></div>
+            <h4 id="statMonthTitle">근무 현황</h4>
+            <div class="value" id="statTotalDaysValue">총 0일 근무 / 0일</div>
+            <div class="sub-value" id="statHolidayDetail">이번 달 휴일은 <span class="highlight-holiday">0일</span>입니다.</div>
         </div>
         <div class="stat-card card-am">
             <h4>오전반 상세</h4>
@@ -136,46 +133,26 @@
     <div id="modal">
         <h3 id="modalDate" style="margin: 0 0 15px 0; font-size: 1.1rem;">날짜 선택</h3>
         <div class="form-group">
-            <label style="display: flex; align-items: center; cursor: pointer;">
-                <input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width: 18px; height: 18px; margin-right: 10px;"> 🌴 휴일 체크
-            </label>
+            <label style="display: flex; align-items: center; cursor: pointer;"><input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width: 18px; height: 18px; margin-right: 10px;"> 🌴 휴일 체크</label>
         </div>
-        <div class="form-group">
-            <label id="shiftLabel">근무 타임</label>
-            <div class="btn-toggle-group">
-                <button class="btn-toggle" id="shiftAM" onclick="setShift('오전')">오전</button>
-                <button class="btn-toggle" id="shiftPM" onclick="setShift('오후')">오후</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label id="tangLabel">업무 횟수</label>
-            <div class="btn-toggle-group">
-                <button class="btn-toggle" id="tang2" onclick="setTang(2)">2회</button>
-                <button class="btn-toggle" id="tang3" onclick="setTang(3)">3회</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>메모</label>
-            <textarea id="memo" rows="2"></textarea>
-        </div>
+        <div class="form-group"><label id="shiftLabel">근무 타임</label><div class="btn-toggle-group"><button class="btn-toggle" id="shiftAM" onclick="setShift('오전')">오전</button><button class="btn-toggle" id="shiftPM" onclick="setShift('오후')">오후</button></div></div>
+        <div class="form-group"><label id="tangLabel">업무 횟수</label><div class="btn-toggle-group"><button class="btn-toggle" id="tang2" onclick="setTang(2)">2회</button><button class="btn-toggle" id="tang3" onclick="setTang(3)">3회</button></div></div>
+        <div class="form-group"><label>메모</label><textarea id="memo" rows="2"></textarea></div>
         <button class="btn-save" onclick="save()">저장 완료</button>
     </div>
 
 <script>
     let viewDate = new Date();
-    let db = JSON.parse(localStorage.getItem('bbanggomWorkLogV18') || '{}');
+    let db = JSON.parse(localStorage.getItem('bbanggomWorkLogV19') || '{}');
     let activeKey = "";
     let selectedShift = null;
     let selectedTang = null;
 
-    // 2025-2026 한국 공휴일 데이터
     const holidays = {
-        /* 2025년 */
         "2025-01-01": "신정", "2025-01-28": "설날 연휴", "2025-01-29": "설날", "2025-01-30": "설날 연휴",
         "2025-03-01": "삼일절", "2025-03-03": "대체공휴일", "2025-05-05": "어린이날/부처님오신날", "2025-05-06": "대체공휴일",
         "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절", "2025-10-05": "추석 연휴", 
         "2025-10-06": "추석", "2025-10-07": "추석 연휴", "2025-10-08": "대체공휴일", "2025-10-09": "한글날", "2025-12-25": "크리스마스",
-        /* 2026년 */
         "2026-01-01": "신정", "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴",
         "2026-03-01": "삼일절", "2026-03-02": "대체공휴일", "2026-05-05": "어린이날", "2026-05-24": "부처님오신날",
         "2026-05-25": "대체공휴일", "2026-06-06": "현충일", "2026-08-15": "광복절", "2026-08-17": "대체공휴일",
@@ -188,10 +165,10 @@
         grid.innerHTML = '';
         const year = viewDate.getFullYear();
         const month = viewDate.getMonth();
+        const lastDate = new Date(year, month + 1, 0).getDate(); // 해당 월의 총 일수
         document.getElementById('monthDisplay').innerText = `${year}년 ${month + 1}월`;
         
         const firstDay = new Date(year, month, 1).getDay();
-        const lastDate = new Date(year, month + 1, 0).getDate();
         const totalCells = (firstDay + lastDate) > 35 ? 42 : 35; 
 
         const startDate = new Date(year, month, 1);
@@ -208,11 +185,8 @@
             
             const cell = document.createElement('div');
             cell.className = `day-cell ${isThisMonth ? '' : 'other-month'}`;
-            
             const holidayName = holidays[key];
-            const isWeekendOrHoliday = holidayName || dayOfWeek === 0 || dayOfWeek === 6;
-            const holidayClass = isWeekendOrHoliday ? ' holiday-date' : '';
-
+            const holidayClass = (holidayName || dayOfWeek === 0 || dayOfWeek === 6) ? ' holiday-date' : '';
             let content = `<div class="day-num${holidayClass}">${date.getDate()}</div>`;
             if (holidayName) content += `<div class="holiday-name">${holidayName}</div>`;
 
@@ -222,31 +196,25 @@
                     if (data.isHoliday) stats.holiday++;
                     else if (data.shift) {
                         stats.total++;
-                        if (data.shift === '오전') {
-                            stats.am++;
-                            if (data.count == 2) stats.am2++; else if (data.count == 3) stats.am3++;
-                        } else {
-                            stats.pm++;
-                            if (data.count == 2) stats.pm2++; else if (data.count == 3) stats.pm3++;
-                        }
+                        if (data.shift === '오전') { stats.am++; if (data.count == 2) stats.am2++; else if (data.count == 3) stats.am3++; }
+                        else { stats.pm++; if (data.count == 2) stats.pm2++; else if (data.count == 3) stats.pm3++; }
                     }
                 }
                 if (data.isHoliday) content += `<div class="item item-holiday">🌴 휴일</div>`;
-                else if (data.shift) {
-                    const shiftClass = data.shift === '오전' ? 'item-am' : 'item-pm';
-                    content += `<div class="item ${shiftClass}">${data.shift} ${data.count}회</div>`;
-                }
+                else if (data.shift) { const shiftClass = data.shift === '오전' ? 'item-am' : 'item-pm'; content += `<div class="item ${shiftClass}">${data.shift} ${data.count}회</div>`; }
                 if (data.memo) content += `<div class="item-memo">${data.memo}</div>`;
             }
             cell.innerHTML = content;
             cell.onclick = () => openModal(key);
             grid.appendChild(cell);
         }
-        updateStatsUI(stats);
+        updateStatsUI(stats, year, month + 1, lastDate);
     }
 
-    function updateStatsUI(s) {
-        document.getElementById('statTotalDays').innerText = s.total;
+    // 통계 업데이트 함수 수정
+    function updateStatsUI(s, year, month, lastDate) {
+        document.getElementById('statMonthTitle').innerText = `${year}년 ${month}월 근무현황`;
+        document.getElementById('statTotalDaysValue').innerText = `총 ${s.total}일 근무 / ${lastDate}일`;
         document.getElementById('statHolidayDetail').innerHTML = `이번 달 휴일은 <span class="highlight-holiday">${s.holiday}일</span>입니다.`;
         document.getElementById('statAMTotal').innerText = `${s.am}일`;
         document.getElementById('statAMDetail').innerText = `오전 2회: ${s.am2}일, 오전 3회: ${s.am3}일`;
@@ -254,10 +222,8 @@
         document.getElementById('statPMDetail').innerText = `오후 2회: ${s.pm2}일, 오후 3회: ${s.pm3}일`;
     }
 
-    // 버튼 로직 생략(이전과 동일)...
     function setShift(val) { selectedShift = (selectedShift === val) ? null : val; updateButtons(); }
     function setTang(val) { selectedTang = (selectedTang === val) ? null : val; updateButtons(); }
-
     function updateButtons() {
         const isHoliday = document.getElementById('isHoliday').checked;
         if (isHoliday) { selectedShift = null; selectedTang = null; }
@@ -270,37 +236,23 @@
         document.getElementById('shiftLabel').style.opacity = isHoliday ? '0.3' : '1';
         document.getElementById('tangLabel').style.opacity = isHoliday ? '0.3' : '1';
     }
-
     function openModal(key) {
         activeKey = key;
         const data = db[key] || { isHoliday: false, shift: null, count: null, memo: '' };
         document.getElementById('modalDate').innerText = key;
         document.getElementById('isHoliday').checked = data.isHoliday;
         document.getElementById('memo').value = data.memo;
-        selectedShift = data.shift;
-        selectedTang = data.count;
+        selectedShift = data.shift; selectedTang = data.count;
         updateButtons();
         document.getElementById('modal').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
     }
-
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-    }
-
+    function closeModal() { document.getElementById('modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; }
     function save() {
-        db[activeKey] = {
-            isHoliday: document.getElementById('isHoliday').checked,
-            shift: selectedShift,
-            count: selectedTang,
-            memo: document.getElementById('memo').value
-        };
-        localStorage.setItem('bbanggomWorkLogV18', JSON.stringify(db));
-        render();
-        closeModal();
+        db[activeKey] = { isHoliday: document.getElementById('isHoliday').checked, shift: selectedShift, count: selectedTang, memo: document.getElementById('memo').value };
+        localStorage.setItem('bbanggomWorkLogV19', JSON.stringify(db));
+        render(); closeModal();
     }
-
     function moveMonth(offset) { viewDate.setMonth(viewDate.getMonth() + offset); render(); }
     render();
 </script>
