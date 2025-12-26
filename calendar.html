@@ -9,12 +9,12 @@
             --primary: #4a90e2; 
             --holiday: #ff6b6b; /* 일요일/공휴일 빨간색 */
             --sat-color: #1c7ed6; /* 토요일 파란색 */
-            --user-holiday-cell-bg: #f2fdf7; /* 직접 체크한 휴일 배경 (매우 연한 녹색) */
-            --user-holiday-text: #099268; /* 직접 체크한 휴일 글자 (진녹색) */
+            --user-holiday-cell-bg: #f2fdf7; /* 직접 체크한 휴일 배경 */
+            --user-holiday-text: #099268; /* 직접 체크한 휴일 텍스트 */
             --border: #e9ecef;
             --am-color: #1971c2; --am-bg: #e7f5ff;
             --pm-color: #fd7e14; --pm-bg: #fff4e6;
-            --bg-standard: #f8f9fa; /* 요청하신 전체 배경색 */
+            --bg-standard: #f8f9fa; 
             --text-dark: #333;
         }
 
@@ -25,13 +25,21 @@
         .calendar-container { width: 100%; max-width: 950px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px; }
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff; }
-        .month-selector { display: flex; gap: 5px; align-items: center; }
+        .month-selector { display: flex; gap: 4px; align-items: center; }
         .month-selector select { 
             font-size: 1.1rem; font-weight: 800; color: var(--text-dark); border: none; 
-            background: transparent; cursor: pointer; outline: none; padding: 2px 5px;
+            background: transparent; cursor: pointer; outline: none; padding: 2px;
             border-radius: 5px; transition: background 0.2s;
         }
         .month-selector select:hover { background: #f1f3f5; }
+        
+        .btn-today {
+            background: #f1f3f5; color: var(--text-dark); border: 1px solid #dee2e6;
+            padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+            cursor: pointer; margin-left: 4px; transition: all 0.2s;
+        }
+        .btn-today:hover { background: var(--text-dark); color: white; border-color: var(--text-dark); }
+
         .nav-buttons button { cursor: pointer; border: 1px solid #ddd; background: white; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
 
         .weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: #fafbfc; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -44,10 +52,17 @@
         .day-cell:nth-child(7n) { border-right: none; }
         .day-cell:hover { background: #f8f9fa; }
         
-        /* 휴일 체크된 셀 배경색 */
         .user-holiday-active { background-color: var(--user-holiday-cell-bg) !important; }
 
-        .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; }
+        .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; display: flex; align-items: center; }
+        
+        /* 오늘 날짜 하이라이트: 검정색 배경으로 변경 */
+        .today-circle {
+            background: var(--text-dark); color: white !important;
+            width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 50%; margin-left: -2px;
+        }
+
         .holiday-date { color: var(--holiday) !important; }
         .saturday-date { color: var(--sat-color) !important; }
         .holiday-name { font-size: 0.55rem; color: var(--holiday); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
@@ -59,29 +74,24 @@
         .item-pm { background: var(--pm-bg); color: var(--pm-color); border: 1px solid #ffd8a8; }
         .item-memo { color: #adb5bd; font-size: 0.58rem; font-style: italic; margin-top: auto; padding-top: 1px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; word-break: break-all; }
 
-        /* 화이트 통계 카드 */
-        .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: 1fr; gap: 10px; }
-        @media (min-width: 600px) { .stats-container { grid-template-columns: repeat(3, 1fr); } }
-        .stat-card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 5px; border: 1px solid #eee; border-left-width: 6px; }
+        .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .stat-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 5px; border: 1px solid #eee; border-left-width: 5px; min-width: 0; }
         .card-total { border-left-color: #343a40; }
         .card-am { border-left-color: var(--am-color); }
         .card-pm { border-left-color: var(--pm-color); }
-        .stat-card h4 { margin: 0; font-size: 0.75rem; color: #868e96; font-weight: 700; }
-        .stat-card .value { font-size: 1.2rem; font-weight: 800; color: var(--text-dark); }
-        .stat-card .sub-value { font-size: 0.75rem; color: #495057; font-weight: 500; }
+        .stat-card h4 { margin: 0; font-size: 0.65rem; color: #868e96; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat-card .value { font-size: 1rem; font-weight: 800; color: var(--text-dark); word-break: keep-all; }
+        .stat-card .sub-value { font-size: 0.65rem; color: #495057; font-weight: 500; word-break: keep-all; }
         .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
 
         #modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 320px; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; backdrop-filter: blur(3px); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9rem; }
         textarea { width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 10px; font-size: 0.9rem; resize: none; box-sizing: border-box; }
         .btn-toggle-group { display: flex; gap: 6px; }
         .btn-toggle { flex: 1; padding: 10px; border: 1px solid #dee2e6; border-radius: 8px; background: white; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
         .btn-toggle.active-blue { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-toggle.active-orange { background: var(--pm-color); color: white; border-color: var(--pm-color); }
         .btn-toggle.active-gray { background: var(--text-dark); color: white; border-color: var(--text-dark); }
-        .btn-toggle:disabled { opacity: 0.2; cursor: not-allowed; }
         .btn-save { width: 100%; background: var(--text-dark); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
@@ -99,6 +109,7 @@
             <div class="month-selector">
                 <select id="yearSelect" onchange="jumpToDate()"></select>
                 <select id="monthSelect" onchange="jumpToDate()"></select>
+                <button onclick="jumpToToday()" class="btn-today">오늘</button>
             </div>
             <div class="nav-buttons"><button onclick="moveMonth(1)">▶</button></div>
         </div>
@@ -113,18 +124,18 @@
     <div class="stats-container">
         <div class="stat-card card-total">
             <h4 id="statMonthTitle">근무 현황</h4>
-            <div class="value" id="statTotalDaysValue">총 0일 근무 / 0일</div>
-            <div class="sub-value" id="statHolidayDetail">이번 달 휴일은 <span class="highlight-holiday">0일</span>입니다.</div>
+            <div class="value" id="statTotalDaysValue">총 0일 / 0일</div>
+            <div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0일</span></div>
         </div>
         <div class="stat-card card-am">
             <h4>오전반 상세</h4>
             <div class="value" id="statAMTotal">0일</div>
-            <div class="sub-value" id="statAMDetail">오전 2회: 0일, 오전 3회: 0일</div>
+            <div class="sub-value" id="statAMDetail">2회:0, 3회:0</div>
         </div>
         <div class="stat-card card-pm">
             <h4>오후반 상세</h4>
             <div class="value" id="statPMTotal">0일</div>
-            <div class="sub-value" id="statPMDetail">오후 2회: 0일, 오후 3회: 0일</div>
+            <div class="sub-value" id="statPMDetail">2회:0, 3회:0</div>
         </div>
     </div>
 
@@ -141,16 +152,12 @@
 <script>
     let viewDate = new Date();
     const STORAGE_KEY = 'bbanggom_stable_data';
-    
     let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    let activeKey = "", selectedShift = null, selectedTang = null;
-    let holidaysCache = {};
+    let activeKey = "", selectedShift = null, selectedTang = null, holidaysCache = {};
 
-    // 2025-2027 기본 공휴일
     const baseHolidays = {
-        "2025-01-01": "신정", "2025-01-29": "설날", "2025-03-01": "삼일절", "2025-05-05": "어린이날", "2025-05-15": "부처님오신날", "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-06": "추석", "2025-10-09": "한글날", "2025-12-25": "크리스마스",
-        "2026-02-17": "설날", "2026-05-24": "부처님오신날", "2026-09-25": "추석", "2026-12-25": "크리스마스",
-        "2027-02-07": "설날", "2027-05-13": "부처님오신날", "2027-09-15": "추석", "2027-12-25": "크리스마스"
+        "2026-12-25": "크리스마스", "2027-12-25": "크리스마스", "2028-12-25": "크리스마스",
+        "2029-12-25": "크리스마스", "2030-12-25": "크리스마스"
     };
 
     async function loadHolidays(year) {
@@ -159,39 +166,46 @@
             const resp = await fetch(`https://cdn.jsdelivr.net/gh/distbe/holidays@gh-pages/${year}.json`);
             if (resp.ok) {
                 const data = await resp.json();
-                data.forEach(h => { if(h.holiday) baseHolidays[h.date] = h.name; });
+                data.forEach(h => { 
+                    if(h.holiday) {
+                        const hName = (h.name === '기독탄신일' || h.name === '성탄절') ? '크리스마스' : h.name;
+                        baseHolidays[h.date] = hName; 
+                    }
+                });
                 holidaysCache[year] = true;
             }
-        } catch (e) { console.log("Holiday API Fail", e); }
+        } catch (e) {}
     }
 
     function initSelects(year, month) {
-        const yearSelect = document.getElementById('yearSelect');
-        const monthSelect = document.getElementById('monthSelect');
-        yearSelect.innerHTML = ''; monthSelect.innerHTML = '';
-        for (let y = 2024; y <= 2030; y++) {
+        const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
+        ySel.innerHTML = ''; mSel.innerHTML = '';
+        for (let y = 2026; y <= 2030; y++) {
             const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y}년`;
-            if (y === year) opt.selected = true; yearSelect.appendChild(opt);
+            if (y === year) opt.selected = true; ySel.appendChild(opt);
         }
         for (let m = 1; m <= 12; m++) {
             const opt = document.createElement('option'); opt.value = m - 1; opt.innerText = `${m}월`;
-            if (m - 1 === month) opt.selected = true; monthSelect.appendChild(opt);
+            if (m - 1 === month) opt.selected = true; mSel.appendChild(opt);
         }
     }
 
     function jumpToDate() {
-        const y = parseInt(document.getElementById('yearSelect').value);
-        const m = parseInt(document.getElementById('monthSelect').value);
-        viewDate = new Date(y, m, 1);
+        viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1);
+        render();
+    }
+
+    function jumpToToday() {
+        viewDate = new Date();
         render();
     }
 
     async function render() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
-        const year = viewDate.getFullYear();
-        const month = viewDate.getMonth();
+        const year = viewDate.getFullYear(), month = viewDate.getMonth();
         const lastDate = new Date(year, month + 1, 0).getDate();
+        const realToday = new Date(); 
         
         initSelects(year, month);
         await loadHolidays(year);
@@ -210,6 +224,10 @@
             const isThisMonth = date.getMonth() === month;
             const dayOfWeek = date.getDay();
             
+            const isToday = date.getFullYear() === realToday.getFullYear() && 
+                          date.getMonth() === realToday.getMonth() && 
+                          date.getDate() === realToday.getDate();
+            
             const cell = document.createElement('div');
             cell.className = `day-cell ${isThisMonth ? '' : 'other-month'}`;
             const holidayName = baseHolidays[key];
@@ -218,7 +236,9 @@
             if (holidayName || dayOfWeek === 0) dateClass += ' holiday-date';
             else if (dayOfWeek === 6) dateClass += ' saturday-date';
             
-            let content = `<div class="${dateClass}">${date.getDate()}</div>`;
+            const dateNumDisplay = isToday ? `<span class="today-circle">${date.getDate()}</span>` : date.getDate();
+            
+            let content = `<div class="${dateClass}">${dateNumDisplay}</div>`;
             if (holidayName) content += `<div class="holiday-name">${holidayName}</div>`;
 
             if (db[key]) {
@@ -249,13 +269,13 @@
     }
 
     function updateStatsUI(s, y, m, ld) {
-        document.getElementById('statMonthTitle').innerText = `${y}년 ${m}월 근무현황`;
-        document.getElementById('statTotalDaysValue').innerText = `총 ${s.total}일 근무 / ${ld}일`;
-        document.getElementById('statHolidayDetail').innerHTML = `이번 달 휴일은 <span class="highlight-holiday">${s.holiday}일</span>입니다.`;
+        document.getElementById('statMonthTitle').innerText = `${y}년 ${m}월`;
+        document.getElementById('statTotalDaysValue').innerText = `총 ${s.total}일 / ${ld}일`;
+        document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}일</span>`;
         document.getElementById('statAMTotal').innerText = `${s.am}일`;
-        document.getElementById('statAMDetail').innerText = `오전 2회: ${s.am2}일, 오전 3회: ${s.am3}일`;
+        document.getElementById('statAMDetail').innerText = `2회:${s.am2}, 3회:${s.am3}`;
         document.getElementById('statPMTotal').innerText = `${s.pm}일`;
-        document.getElementById('statPMDetail').innerText = `오후 2회: ${s.pm2}일, 오후 3회: ${s.pm3}일`;
+        document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
     }
 
     function setShift(v) { selectedShift = (selectedShift === v) ? null : v; updateButtons(); }
@@ -269,8 +289,6 @@
         document.getElementById('shiftPM').className = 'btn-toggle' + (selectedShift === '오후' ? ' active-orange' : '');
         document.getElementById('tang2').className = 'btn-toggle' + (selectedTang === 2 ? ' active-gray' : '');
         document.getElementById('tang3').className = 'btn-toggle' + (selectedTang === 3 ? ' active-gray' : '');
-        document.getElementById('shiftLabel').style.opacity = isH ? '0.3' : '1';
-        document.getElementById('tangLabel').style.opacity = isH ? '0.3' : '1';
     }
     function openModal(k) {
         activeKey = k; const data = db[k] || { isHoliday: false, shift: null, count: null, memo: '' };
