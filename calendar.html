@@ -17,11 +17,7 @@
         .app-title { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 10px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; }
         .app-logo { width: 45px; height: auto; }
 
-        .calendar-container { 
-            width: 100%; max-width: 950px; background: white; border-radius: 15px; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px;
-            user-select: none;
-        }
+        .calendar-container { width: 100%; max-width: 950px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px; user-select: none; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff; border-bottom: 1px solid var(--border); }
         .month-selector { display: flex; gap: 4px; align-items: center; }
         .month-selector select { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); border: none; background: transparent; cursor: pointer; outline: none; padding: 2px; border-radius: 5px; }
@@ -33,10 +29,7 @@
         .weekday:nth-child(1) { color: var(--holiday); }
         .weekday:nth-child(7) { color: var(--sat-color); }
 
-        /* 셀 높이 조정: 88px -> 82px */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 82px; }
-        
-        /* 셀 내부 여백 및 간격 최적화 */
         .day-cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3px 4px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; min-width: 0; overflow: hidden; background: #fff; position: relative; }
         .day-cell:nth-child(7n) { border-right: none; }
         .user-holiday-active { background-color: var(--user-holiday-cell-bg) !important; }
@@ -53,26 +46,27 @@
         .item-holiday { background: transparent; color: var(--user-holiday-text); border: 1px solid #c3fae8; }
         .item-am { background: var(--am-bg); color: var(--am-color); border: 1px solid #a5d8ff; }
         .item-pm { background: var(--pm-bg); color: var(--pm-color); border: 1px solid #ffd8a8; }
-        
-        .item-memo { 
-            color: #adb5bd; font-size: 0.55rem; font-style: normal; margin-top: auto; 
-            padding-top: 1px; border-top: 1px dashed #eee; 
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; 
-            overflow: hidden; line-height: 1.1; word-break: break-all; 
-        }
+        .item-memo { color: #adb5bd; font-size: 0.55rem; font-style: normal; margin-top: auto; padding-top: 1px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.1; word-break: break-all; }
 
+        /* 통계 카드 텍스트 스타일 수정 */
         .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .stat-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 4px; border: 1px solid #eee; border-left-width: 5px; min-width: 0; }
         .card-total { border-left-color: #343a40; }
         .card-am { border-left-color: var(--am-color); }
         .card-pm { border-left-color: var(--pm-color); }
+        
         .stat-card h4 { margin: 0; font-size: 0.65rem; color: #868e96; font-weight: 700; }
         .stat-card .value { font-size: 0.95rem; font-weight: 800; color: var(--text-dark); }
+        
+        /* 월 총 일수 사이즈 작게 조절 */
+        .value-total-days { font-size: 0.75rem; font-weight: 600; color: #adb5bd; }
+
+        /* 하단 상세 내역 사이즈 2포인트(0.1rem) 축소 */
+        .stat-card .sub-value { font-size: 0.55rem; color: #495057; font-weight: 500; word-break: keep-all; }
         .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
 
         .data-management { width: 100%; max-width: 950px; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
         .btn-data { padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 0.75rem; cursor: pointer; color: #666; }
-
         .toast { visibility: hidden; min-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 200; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
         .toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
@@ -115,9 +109,21 @@
     </div>
 
     <div class="stats-container">
-        <div class="stat-card card-total"><h4 id="statMonthTitle">근무 현황</h4><div class="value" id="statTotalDaysValue">총 0일 / 0일</div><div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0일</span></div></div>
-        <div class="stat-card card-am"><h4>오전반</h4><div class="value" id="statAMTotal">0일</div><div class="sub-value" id="statAMDetail">2회:0, 3회:0</div></div>
-        <div class="stat-card card-pm"><h4>오후반</h4><div class="value" id="statPMTotal">0일</div><div class="sub-value" id="statPMDetail">2회:0, 3회:0</div></div>
+        <div class="stat-card card-total">
+            <h4 id="statMonthTitle">근무 현황</h4>
+            <div class="value" id="statTotalDaysValue">총 0일 <span class="value-total-days">/ 0일</span></div>
+            <div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0일</span></div>
+        </div>
+        <div class="stat-card card-am">
+            <h4>오전반</h4>
+            <div class="value" id="statAMTotal">0일</div>
+            <div class="sub-value" id="statAMDetail">2회:0, 3회:0</div>
+        </div>
+        <div class="stat-card card-pm">
+            <h4>오후반</h4>
+            <div class="value" id="statPMTotal">0일</div>
+            <div class="sub-value" id="statPMDetail">2회:0, 3회:0</div>
+        </div>
     </div>
 
     <div class="data-management">
@@ -138,7 +144,7 @@
     </div>
 
     <div class="modal-content" id="importModal">
-        <h3 style="margin: 0 0 15px 0; font-size: 1.2rem;">데이터 불러오기</h3>
+        <h3 style="margin: 0 0 20px 0; font-size: 1.2rem;">데이터 불러오기</h3>
         <div class="form-group">
             <label>데이터 코드를 붙여넣어 주세요</label>
             <textarea id="importArea" rows="6" placeholder="여기에 코드를 입력하세요"></textarea>
@@ -212,7 +218,7 @@
             cell.innerHTML = content; cell.onclick = () => openEditModal(key); grid.appendChild(cell);
         }
         document.getElementById('statMonthTitle').innerText = `${year}년 ${month + 1}월`;
-        document.getElementById('statTotalDaysValue').innerText = `총 ${s.total}일 / ${lastDate}일`;
+        document.getElementById('statTotalDaysValue').innerHTML = `총 ${s.total}일 <span class="value-total-days">/ ${lastDate}일</span>`;
         document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}일</span>`;
         document.getElementById('statAMTotal').innerText = `${s.am}일`; document.getElementById('statAMDetail').innerText = `2회:${s.am2}, 3회:${s.am3}`;
         document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
