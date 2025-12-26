@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>빵곰이 근무표</title>
     <link rel="icon" href="https://postfiles.pstatic.net/MjAyNTEyMjZfMjgg/MDAxNzY2NzA1ODkxNDI4.jwR_hmBeX73gNUybaFzK1piDE3Dp6NPgib30YcaMvaQg.7BxiiFsCLAVzNkdQdORGL7WAVlKYT_a-_aaaIvT47gsg.PNG/image_1.png?type=w773" type="image/png">
     <style>
@@ -13,48 +13,61 @@
             --pm-color: #fd7e14; --pm-bg: #fff4e6; --bg-standard: #f8f9fa; --text-dark: #333;
         }
 
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-standard); display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-standard); display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; touch-action: pan-y; }
         .app-title { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 10px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; }
         .app-logo { width: 45px; height: auto; }
 
-        .calendar-container { width: 100%; max-width: 950px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff; }
+        .calendar-container { 
+            width: 100%; max-width: 950px; background: white; border-radius: 15px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px;
+            user-select: none;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff; border-bottom: 1px solid var(--border); }
         .month-selector { display: flex; gap: 4px; align-items: center; }
         .month-selector select { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); border: none; background: transparent; cursor: pointer; outline: none; padding: 2px; border-radius: 5px; }
         .btn-today { background: #f1f3f5; color: var(--text-dark); border: 1px solid #dee2e6; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-left: 4px; }
         .nav-buttons button { cursor: pointer; border: 1px solid #ddd; background: white; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
 
-        .weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: #fafbfc; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: #fafbfc; border-bottom: 1px solid var(--border); }
         .weekday { text-align: center; padding: 8px 0; font-size: 0.7rem; color: #868e96; font-weight: bold; }
         .weekday:nth-child(1) { color: var(--holiday); }
         .weekday:nth-child(7) { color: var(--sat-color); }
 
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 88px; }
-        .day-cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 4px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; background: #fff; }
+        /* 셀 높이 조정: 88px -> 82px */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 82px; }
+        
+        /* 셀 내부 여백 및 간격 최적화 */
+        .day-cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3px 4px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; min-width: 0; overflow: hidden; background: #fff; position: relative; }
         .day-cell:nth-child(7n) { border-right: none; }
         .user-holiday-active { background-color: var(--user-holiday-cell-bg) !important; }
 
-        .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; display: flex; align-items: center; }
-        .today-circle { background: var(--text-dark); color: white !important; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-left: -2px; }
+        .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; display: flex; align-items: center; min-height: 22px; }
+        .today-circle { background: var(--text-dark); color: white !important; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-left: -2px; font-size: 0.75rem; }
 
         .holiday-date { color: var(--holiday) !important; }
         .saturday-date { color: var(--sat-color) !important; }
-        .holiday-name { font-size: 0.55rem; color: var(--holiday); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
+        .holiday-name { font-size: 0.55rem; color: var(--holiday); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; margin-bottom: 1px; }
         .other-month { opacity: 0.2; }
 
-        .item { font-size: 0.62rem; padding: 1px 3px; border-radius: 3px; font-weight: 700; text-align: center; white-space: normal; word-break: keep-all; line-height: 1.1; display: block; }
+        .item { font-size: 0.6rem; padding: 1px 2px; border-radius: 3px; font-weight: 700; text-align: center; white-space: normal; word-break: keep-all; line-height: 1; display: block; }
         .item-holiday { background: transparent; color: var(--user-holiday-text); border: 1px solid #c3fae8; }
         .item-am { background: var(--am-bg); color: var(--am-color); border: 1px solid #a5d8ff; }
         .item-pm { background: var(--pm-bg); color: var(--pm-color); border: 1px solid #ffd8a8; }
-        .item-memo { color: #adb5bd; font-size: 0.58rem; font-style: normal; margin-top: auto; padding-top: 1px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; word-break: break-all; }
+        
+        .item-memo { 
+            color: #adb5bd; font-size: 0.55rem; font-style: normal; margin-top: auto; 
+            padding-top: 1px; border-top: 1px dashed #eee; 
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; 
+            overflow: hidden; line-height: 1.1; word-break: break-all; 
+        }
 
         .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .stat-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 5px; border: 1px solid #eee; border-left-width: 5px; min-width: 0; }
+        .stat-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 4px; border: 1px solid #eee; border-left-width: 5px; min-width: 0; }
         .card-total { border-left-color: #343a40; }
         .card-am { border-left-color: var(--am-color); }
         .card-pm { border-left-color: var(--pm-color); }
         .stat-card h4 { margin: 0; font-size: 0.65rem; color: #868e96; font-weight: 700; }
-        .stat-card .value { font-size: 1rem; font-weight: 800; color: var(--text-dark); }
+        .stat-card .value { font-size: 0.95rem; font-weight: 800; color: var(--text-dark); }
         .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
 
         .data-management { width: 100%; max-width: 950px; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
@@ -87,7 +100,7 @@
         빵곰이 근무표
     </h1>
 
-    <div class="calendar-container">
+    <div class="calendar-container" id="swipeArea">
         <div class="header">
             <div class="nav-buttons"><button onclick="moveMonth(-1)">◀</button></div>
             <div class="month-selector">
@@ -142,11 +155,11 @@
 
     const baseHolidays = {
         "2025-01-01":"신정","2025-01-28":"설날연휴","2025-01-29":"설날","2025-01-30":"설날연휴","2025-03-01":"삼일절","2025-03-03":"대체공휴일","2025-05-05":"어린이날/부처님오신날","2025-05-06":"대체공휴일","2025-06-06":"현충일","2025-08-15":"광복절","2025-10-03":"개천절","2025-10-05":"추석연휴","2025-10-06":"추석","2025-10-07":"추석연휴","2025-10-08":"대체공휴일","2025-10-09":"한글날","2025-12-25":"크리스마스",
-        "2026-01-01":"신정","2026-02-16":"설날연휴","2026-02-17":"설날","2026-02-18":"설날연휴","2026-03-01":"삼일절","2026-03-02":"대체공휴일","2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-05-25":"대체공휴일","2026-06-06":"현충일","2026-08-15":"광복절","2026-08-17":"대체공휴일","2026-09-24":"추석연휴","2026-09-25":"추석","2026-09-26":"추석연휴","2026-10-03":"개천절","2026-10-05":"대체공휴일","2026-10-09":"한글날","2026-12-25":"크리스마스",
-        "2027-01-01":"신정","2027-02-06":"설날연휴","2027-02-07":"설날","2027-02-08":"설날연휴","2027-02-09":"대체공휴일","2027-03-01":"삼일절","2027-03-03":"대통령선거","2027-05-05":"어린이날","2027-05-13":"부처님오신날","2027-06-06":"현충일","2027-08-15":"광복절","2027-08-16":"대체공휴일","2027-09-14":"추석연휴","2027-09-15":"추석","2027-09-16":"추석연휴","2027-10-03":"개천절","2027-10-04":"대체공휴일","2027-10-09":"한글날","2027-10-11":"대체공휴일","2027-12-25":"크리스마스","2027-12-27":"대체공휴일",
-        "2028-01-01":"신정","2028-01-26":"설날연휴","2028-01-27":"설날","2028-01-28":"설날연휴","2028-03-01":"삼일절","2028-04-12":"국회의원선거","2028-05-02":"부처님오신날","2028-05-05":"어린이날","2028-06-06":"현충일","2028-08-15":"광복절","2028-10-02":"추석연휴","2028-10-03":"추석/개천절","2028-10-04":"추석연휴","2028-10-05":"대체공휴일","2028-10-09":"한글날","2028-12-25":"크리스마스",
-        "2029-01-01":"신정","2029-02-12":"설날연휴","2029-02-13":"설날","2029-02-14":"설날연휴","2029-03-01":"삼일절","2029-05-05":"어린이날","2029-05-07":"대체공휴일","2029-05-20":"부처님오신날","2029-05-21":"대체공휴일","2029-06-06":"현충일","2029-08-15":"광복절","2029-09-21":"추석연휴","2029-09-22":"추석","2029-09-23":"추석연휴","2029-09-24":"대체공휴일","2029-10-03":"개천절","2029-10-09":"한글날","2029-12-25":"크리스마스",
-        "2030-01-01":"신정","2030-02-02":"설날연휴","2030-02-03":"설날","2030-02-04":"설날연휴","2030-02-05":"대체공휴일","2030-03-01":"삼일절","2030-05-05":"어린이날","2030-05-06":"대체공휴일","2030-05-09":"부처님오신날","2030-06-06":"현충일","2030-06-12":"지방선거","2030-08-15":"광복절","2030-09-11":"추석연휴","2030-09-12":"추석","2030-09-13":"추석연휴","2030-10-03":"개천절","2030-10-09":"한글날","2030-12-25":"크리스마스"
+        "2026-02-17":"설날","2026-05-24":"부처님오신날","2026-09-25":"추석","2026-12-25":"크리스마스",
+        "2027-02-07":"설날","2027-05-13":"부처님오신날","2027-09-15":"추석","2027-12-25":"크리스마스",
+        "2028-01-27":"설날","2028-05-02":"부처님오신날","2028-10-03":"추석/개천절","2028-12-25":"크리스마스",
+        "2029-02-13":"설날","2029-05-20":"부처님오신날","2029-09-22":"추석","2029-12-25":"크리스마스",
+        "2030-02-03":"설날","2030-05-09":"부처님오신날","2030-09-12":"추석","2030-12-25":"크리스마스"
     };
 
     function initSelects(year, month) {
@@ -205,6 +218,16 @@
         document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
     }
 
+    let touchstartX = 0; let touchendX = 0;
+    const swipeArea = document.getElementById('swipeArea');
+    swipeArea.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
+    swipeArea.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, {passive: true});
+    function handleGesture() {
+        const threshold = 50;
+        if (touchendX < touchstartX - threshold) moveMonth(1);
+        if (touchendX > touchstartX + threshold) moveMonth(-1);
+    }
+
     function openEditModal(k) {
         activeKey = k; const data = db[k] || { isHoliday: false, shift: null, count: null, memo: '' };
         document.getElementById('modalDate').innerText = k; document.getElementById('isHoliday').checked = data.isHoliday;
@@ -215,49 +238,33 @@
     function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('modal').style.display = 'none'; document.getElementById('importModal').style.display = 'none'; }
     function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "toast show"; setTimeout(() => t.className = "toast", 3000); }
 
-    // 모달 데이터 복사/불러오기 최적화 로직
     function exportData() {
         try {
-            // 한글 포함 데이터를 위한 강력한 UTF-8 인코딩 (TextEncoder 사용)
             const jsonStr = JSON.stringify(db);
             const bytes = new TextEncoder().encode(jsonStr);
             const base64 = btoa(String.fromCharCode(...bytes));
-            
             const tempInput = document.createElement("textarea");
-            tempInput.value = base64;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
+            tempInput.value = base64; document.body.appendChild(tempInput);
+            tempInput.select(); document.execCommand("copy");
             document.body.removeChild(tempInput);
             showToast('데이터 코드가 복사되었습니다!');
-        } catch (e) { alert('복사 중 오류가 발생했습니다.'); }
+        } catch (e) { alert('복사 실패'); }
     }
 
     function executeImport() {
-        let code = document.getElementById('importArea').value;
-        // 공백, 엔터, 특수문자 완벽 제거 (오직 Base64 유효 문자만 남김)
-        code = code.replace(/[^A-Za-z0-9+/=]/g, "");
-        
+        let code = document.getElementById('importArea').value.replace(/[^A-Za-z0-9+/=]/g, "");
         if (!code) return;
         try {
-            // UTF-8 디코딩 (TextDecoder 사용)
             const binary = atob(code);
             const bytes = new Uint8Array(binary.length);
             for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
             const jsonStr = new TextDecoder().decode(bytes);
             const imported = JSON.parse(jsonStr);
-            
-            if (confirm('기존 데이터를 덮어쓰시겠습니까?')) {
-                db = imported;
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-                render();
-                closeAllModals();
-                showToast('성공적으로 불러왔습니다!');
+            if (confirm('데이터를 덮어쓰시겠습니까?')) {
+                db = imported; localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+                render(); closeAllModals(); showToast('불러오기 성공!');
             }
-        } catch (e) { 
-            console.error(e);
-            alert('유효하지 않은 데이터 코드입니다. 메신저 앱에서 보낼 때 텍스트가 잘리지 않았는지 확인해 주세요.'); 
-        }
+        } catch (e) { alert('유효하지 않은 코드입니다.'); }
     }
 
     function setShift(v) { selectedShift = (selectedShift === v) ? null : v; updateButtons(); }
