@@ -56,7 +56,7 @@
         .stat-card .sub-value { font-size: 0.65rem; color: #495057; font-weight: 500; word-break: keep-all; line-height: 1.2; }
         .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
 
-        /* 공용 섹션 스타일 (버스 및 연락망) */
+        /* 공용 섹션 스타일 */
         .content-section { width: 100%; max-width: 950px; margin-top: 30px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee; }
         .section-label { background: #343a40; color: white; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: bold; }
 
@@ -139,7 +139,7 @@
         <div class="contact-table-wrapper">
             <table class="contact-table" id="contactBody">
                 <thead>
-                    <tr><th>사번</th><th>이름</th><th>휴대폰번호</th></tr>
+                    <tr><th>입사일</th><th>이름</th><th>휴대폰번호</th></tr>
                 </thead>
                 <tbody>
                     </tbody>
@@ -178,7 +178,6 @@
     let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
     let activeKey = "", selectedShift = null, selectedTang = null;
 
-    // 비상연락망 데이터 (이미지에서 추출)
     const contacts = [
         { id: "240101", name: "신길웅", phone: "01063120267" },
         { id: "160508", name: "이기인", phone: "01037575899" },
@@ -201,7 +200,6 @@
         { id: "260201", name: "이창호", phone: "01022866208" }
     ];
 
-    // 공휴일 데이터
     const baseHolidays = {
         "2025-01-01":"신정","2025-01-29":"설날","2025-03-01":"삼일절","2025-05-05":"어린이날","2025-12-25":"크리스마스",
         "2026-01-01":"신정","2026-02-17":"설날","2026-03-01":"삼일절","2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-06-06":"현충일","2026-08-15":"광복절","2026-09-25":"추석","2026-10-03":"개천절","2026-10-09":"한글날","2026-12-25":"크리스마스",
@@ -211,34 +209,20 @@
         "2030-02-03":"설날","2030-05-09":"부처님오신날","2030-09-12":"추석","2030-12-25":"크리스마스"
     };
 
-    function initApp() {
-        render();
-        renderContacts();
-    }
+    function initApp() { render(); renderContacts(); }
 
     function renderContacts() {
         const tbody = document.querySelector("#contactBody tbody");
         tbody.innerHTML = contacts.map(c => {
             const displayPhone = c.phone.length > 3 ? c.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : c.phone;
-            return `
-                <tr>
-                    <td>${c.id}</td>
-                    <td>${c.name}</td>
-                    <td><a class="phone-link" onclick="makeCall('${c.phone}')">📱 ${displayPhone}</a></td>
-                </tr>
-            `;
+            return `<tr><td>${c.id}</td><td>${c.name}</td><td><a class="phone-link" onclick="makeCall('${c.phone}')">📱 ${displayPhone}</a></td></tr>`;
         }).join('');
     }
 
     function makeCall(number) {
-        if (number === "010") {
-            showToast("등록된 번호가 없습니다.");
-            return;
-        }
+        if (number === "010") { showToast("등록된 번호가 없습니다."); return; }
         const formatted = number.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-        if (confirm(formatted + " 번호로 전화를 걸까요?")) {
-            window.location.href = "tel:" + number;
-        }
+        if (confirm(formatted + " 번호로 전화를 걸까요?")) { window.location.href = "tel:" + number; }
     }
 
     function initSelects(year, month) {
@@ -265,7 +249,6 @@
         const totalCells = (firstDay + lastDate) > 35 ? 42 : 35;
         const startDate = new Date(year, month, 1); startDate.setDate(startDate.getDate() - firstDay);
         let s = { total: 0, holiday: 0, am: 0, am2: 0, am3: 0, pm: 0, pm2: 0, pm3: 0 };
-
         for (let i = 0; i < totalCells; i++) {
             const date = new Date(startDate); date.setDate(startDate.getDate() + i);
             const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
