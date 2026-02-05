@@ -17,36 +17,34 @@
         .app-title { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 10px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; }
         .app-logo { width: 45px; height: auto; }
 
+        /* 달력 스타일 */
         .calendar-container { width: 100%; max-width: 950px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px; user-select: none; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff; border-bottom: 1px solid var(--border); }
         .month-selector { display: flex; gap: 4px; align-items: center; }
         .month-selector select { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); border: none; background: transparent; cursor: pointer; outline: none; padding: 2px; border-radius: 5px; }
         .btn-today { background: #f1f3f5; color: var(--text-dark); border: 1px solid #dee2e6; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-left: 4px; }
         .nav-buttons button { cursor: pointer; border: 1px solid #ddd; background: white; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
-        
         .weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: #fafbfc; border-bottom: 1px solid var(--border); }
         .weekday { text-align: center; padding: 8px 0; font-size: 0.7rem; color: #868e96; font-weight: bold; }
         .weekday:nth-child(1) { color: var(--holiday); }
         .weekday:nth-child(7) { color: var(--sat-color); }
-        
         .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 82px; }
         .day-cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3px 4px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; min-width: 0; overflow: hidden; background: #fff; position: relative; }
         .day-cell:nth-child(7n) { border-right: none; }
         .user-holiday-active { background-color: var(--user-holiday-cell-bg) !important; }
         .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; display: flex; align-items: center; min-height: 22px; }
         .today-circle { background: var(--text-dark); color: white !important; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-left: -2px; font-size: 0.75rem; }
-
         .holiday-date { color: var(--holiday) !important; }
         .saturday-date { color: var(--sat-color) !important; }
         .holiday-name { font-size: 0.55rem; color: var(--holiday); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; margin-bottom: 1px; }
         .other-month { opacity: 0.2; }
-        
         .item { font-size: 0.6rem; padding: 1px 2px; border-radius: 3px; font-weight: 700; text-align: center; white-space: normal; word-break: keep-all; line-height: 1; display: block; }
         .item-holiday { background: transparent; color: var(--user-holiday-text); border: 1px solid #c3fae8; }
         .item-am { background: var(--am-bg); color: var(--am-color); border: 1px solid #a5d8ff; }
         .item-pm { background: var(--pm-bg); color: var(--pm-color); border: 1px solid #ffd8a8; }
         .item-memo { color: #adb5bd; font-size: 0.55rem; font-style: normal; margin-top: auto; padding-top: 1px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.1; word-break: break-all; }
 
+        /* 통계 카드 */
         .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .stat-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 4px; border: 1px solid #eee; border-left-width: 5px; min-width: 0; }
         .card-total { border-left-color: #343a40; }
@@ -58,11 +56,24 @@
         .stat-card .sub-value { font-size: 0.65rem; color: #495057; font-weight: 500; word-break: keep-all; line-height: 1.2; }
         .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
 
-        /* 버스 운행표 이미지 섹션 - 우회 설정 적용 */
-        .bus-section { width: 100%; max-width: 950px; margin-top: 30px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 50px; cursor: pointer; border: 1px solid #eee; }
-        .bus-section img { width: 100%; height: auto; display: block; }
-        .bus-label { background: #343a40; color: white; text-align: center; padding: 8px; font-size: 0.8rem; font-weight: bold; }
+        /* 공용 섹션 스타일 (버스 및 연락망) */
+        .content-section { width: 100%; max-width: 950px; margin-top: 30px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee; }
+        .section-label { background: #343a40; color: white; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: bold; }
 
+        /* 버스 운행표 이미지 섹션 */
+        .bus-section { cursor: pointer; }
+        .bus-section img { width: 100%; height: auto; display: block; }
+
+        /* 비상연락망 테이블 스타일 */
+        .contact-table-wrapper { width: 100%; overflow-x: auto; padding: 10px; box-sizing: border-box; }
+        .contact-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 300px; }
+        .contact-table th { background: #f8f9fa; padding: 12px 8px; border-bottom: 2px solid var(--border); color: #868e96; font-weight: 700; text-align: left; }
+        .contact-table td { padding: 12px 8px; border-bottom: 1px solid #f1f3f5; color: var(--text-dark); font-weight: 600; }
+        .contact-table tr:last-child td { border-bottom: none; }
+        .phone-link { color: var(--primary); text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .phone-link:hover { text-decoration: underline; }
+
+        /* 기타 UI */
         .data-management { width: 100%; max-width: 950px; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
         .btn-data { padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 0.75rem; cursor: pointer; color: #666; }
         .toast { visibility: hidden; min-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 200; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
@@ -80,6 +91,8 @@
             background: #fff; border-radius: 15px; padding: 5px; box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
         .image-modal-content img { width: 100%; height: auto; display: block; border-radius: 10px; }
+
+        .footer-spacer { height: 50px; width: 100%; }
     </style>
 </head>
 <body>
@@ -115,11 +128,26 @@
         <button class="btn-data" onclick="openImportModal()">데이터 불러오기</button>
     </div>
 
-    <div class="bus-section" onclick="showImageModal()">
-        <div class="bus-label">🚌 4103번 운행 시간표 (클릭 시 확대)</div>
+    <div class="content-section bus-section" onclick="showImageModal()">
+        <div class="section-label">🚌 4103번 운행 시간표 (클릭 시 확대)</div>
         <img src="https://postfiles.pstatic.net/MjAyNjAxMjZfMTc4/MDAxNzY5Mzg2NDA4MDI5.mq4irpDcDk4GvxGSxGcyXqlDD14PvZMDPQ_18B7JSQog.vyg12ghm0NP-lrm-1pevy50oN6Gf8Q_ARw4bi3IxqFcg.PNG/IMG_3701.PNG?type=w773" 
              alt="4103번 버스 운행 시간표" referrerpolicy="no-referrer">
     </div>
+
+    <div class="content-section contact-section">
+        <div class="section-label">📞 비상연락망</div>
+        <div class="contact-table-wrapper">
+            <table class="contact-table" id="contactBody">
+                <thead>
+                    <tr><th>사번</th><th>이름</th><th>휴대폰번호</th></tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer-spacer"></div>
 
     <div id="toast" class="toast"></div>
     <div class="modal-overlay" id="overlay" onclick="closeAllModals()"></div>
@@ -131,10 +159,10 @@
 
     <div class="modal-content" id="modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:20px; z-index:100; width:85%; max-width:340px;">
         <h3 id="modalDate" style="margin:0 0 15px 0;">날짜 선택</h3>
-        <div style="margin-bottom:20px;"><label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width:20px; height:20px; margin-right:10px;"> 🌴 휴일 체크</label></div>
-        <div style="margin-bottom:20px;"><label>근무 타임</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="shiftAM" onclick="setShift('오전')" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">오전</button><button class="btn-toggle" id="shiftPM" onclick="setShift('오후')" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">오후</button></div></div>
-        <div style="margin-bottom:20px;"><label>업무 횟수</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="tang2" onclick="setTang(2)" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">2회</button><button class="btn-toggle" id="tang3" onclick="setTang(3)" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">3회</button></div></div>
-        <div style="margin-bottom:20px;"><label>메모</label><textarea id="memo" rows="2" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd;"></textarea></div>
+        <div style="margin-bottom:20px;"><label style="display:flex; align-items:center; cursor:pointer; font-weight:bold;"><input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width:20px; height:20px; margin-right:10px;"> 🌴 휴일 체크</label></div>
+        <div style="margin-bottom:20px;"><label style="font-weight:bold;">근무 타임</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="shiftAM" onclick="setShift('오전')" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">오전</button><button class="btn-toggle" id="shiftPM" onclick="setShift('오후')" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">오후</button></div></div>
+        <div style="margin-bottom:20px;"><label style="font-weight:bold;">업무 횟수</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="tang2" onclick="setTang(2)" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">2회</button><button class="btn-toggle" id="tang3" onclick="setTang(3)" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">3회</button></div></div>
+        <div style="margin-bottom:20px;"><label style="font-weight:bold;">메모</label><textarea id="memo" rows="2" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd;"></textarea></div>
         <button onclick="save()" style="width:100%; background:var(--text-dark); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold;">저장 완료</button>
     </div>
     
@@ -150,6 +178,30 @@
     let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
     let activeKey = "", selectedShift = null, selectedTang = null;
 
+    // 비상연락망 데이터 (이미지에서 추출)
+    const contacts = [
+        { id: "240101", name: "신길웅", phone: "01063120267" },
+        { id: "160508", name: "이기인", phone: "01037575899" },
+        { id: "160524", name: "이해동", phone: "01043242222" },
+        { id: "171018", name: "최수영", phone: "01036717246" },
+        { id: "171115", name: "구동휘", phone: "01088905123" },
+        { id: "190901", name: "조찬회", phone: "01076797717" },
+        { id: "190916", name: "정의현", phone: "01091757747" },
+        { id: "200101", name: "문재홍", phone: "01032042071" },
+        { id: "200201", name: "이준규", phone: "01036685905" },
+        { id: "201208", name: "장대진", phone: "01063719303" },
+        { id: "210604", name: "김봉민", phone: "01067085357" },
+        { id: "220401", name: "김진배", phone: "01024010110" },
+        { id: "220401", name: "송정순", phone: "01075780972" },
+        { id: "220401", name: "윤진원", phone: "01036191254" },
+        { id: "220404", name: "한승후", phone: "01083348817" },
+        { id: "220906", name: "강현철", phone: "010" },
+        { id: "230413", name: "문기식", phone: "01077110668" },
+        { id: "260101", name: "우진서", phone: "01095075896" },
+        { id: "260201", name: "이창호", phone: "01022866208" }
+    ];
+
+    // 공휴일 데이터
     const baseHolidays = {
         "2025-01-01":"신정","2025-01-29":"설날","2025-03-01":"삼일절","2025-05-05":"어린이날","2025-12-25":"크리스마스",
         "2026-01-01":"신정","2026-02-17":"설날","2026-03-01":"삼일절","2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-06-06":"현충일","2026-08-15":"광복절","2026-09-25":"추석","2026-10-03":"개천절","2026-10-09":"한글날","2026-12-25":"크리스마스",
@@ -158,6 +210,36 @@
         "2029-02-13":"설날","2029-05-20":"부처님오신날","2029-09-22":"추석","2029-12-25":"크리스마스",
         "2030-02-03":"설날","2030-05-09":"부처님오신날","2030-09-12":"추석","2030-12-25":"크리스마스"
     };
+
+    function initApp() {
+        render();
+        renderContacts();
+    }
+
+    function renderContacts() {
+        const tbody = document.querySelector("#contactBody tbody");
+        tbody.innerHTML = contacts.map(c => {
+            const displayPhone = c.phone.length > 3 ? c.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') : c.phone;
+            return `
+                <tr>
+                    <td>${c.id}</td>
+                    <td>${c.name}</td>
+                    <td><a class="phone-link" onclick="makeCall('${c.phone}')">📱 ${displayPhone}</a></td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function makeCall(number) {
+        if (number === "010") {
+            showToast("등록된 번호가 없습니다.");
+            return;
+        }
+        const formatted = number.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+        if (confirm(formatted + " 번호로 전화를 걸까요?")) {
+            window.location.href = "tel:" + number;
+        }
+    }
 
     function initSelects(year, month) {
         const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
@@ -215,7 +297,7 @@
         document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
     }
 
-    let touchstartX = 0; let touchendX = 0;
+    let touchstartX = 0, touchendX = 0;
     const swipeArea = document.getElementById('swipeArea');
     swipeArea.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
     swipeArea.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, {passive: true});
@@ -272,13 +354,8 @@
         if (isH) { selectedShift = null; selectedTang = null; }
         const btns = ['shiftAM', 'shiftPM', 'tang2', 'tang3'];
         btns.forEach(id => {
-            const b = document.getElementById(id);
-            b.disabled = isH;
-            b.style.backgroundColor = (
-                (id==='shiftAM' && selectedShift==='오전') ? 'var(--primary)' : 
-                (id==='shiftPM' && selectedShift==='오후') ? 'var(--pm-color)' :
-                (id.includes('tang') && ((id==='tang2' && selectedTang===2) || (id==='tang3' && selectedTang===3))) ? 'var(--text-dark)' : '#fff'
-            );
+            const b = document.getElementById(id); b.disabled = isH;
+            b.style.backgroundColor = (id==='shiftAM' && selectedShift==='오전') ? 'var(--primary)' : (id==='shiftPM' && selectedShift==='오후') ? 'var(--pm-color)' : (id.includes('tang') && ((id==='tang2' && selectedTang===2) || (id==='tang3' && selectedTang===3))) ? 'var(--text-dark)' : '#fff';
             b.style.color = (b.style.backgroundColor === 'rgb(255, 255, 255)' || b.style.backgroundColor === '#fff') ? '#333' : '#fff';
         });
     }
@@ -288,7 +365,8 @@
         render(); closeAllModals();
     }
     function moveMonth(o) { viewDate.setMonth(viewDate.getMonth() + o); render(); }
-    render();
+    
+    initApp();
 </script>
 </body>
 </html>
