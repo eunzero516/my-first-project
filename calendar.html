@@ -11,7 +11,6 @@
             --user-holiday-cell-bg: #f2fdf7; --user-holiday-text: #099268; 
             --border: #e9ecef; --am-color: #1971c2; --am-bg: #e7f5ff;
             --pm-color: #fd7e14; --pm-bg: #fff4e6; --bg-standard: #f8f9fa; --text-dark: #333;
-            /* 출근형 전용 색상 수정: 가독성 강조 */
             --ot-color: #e67e22; --ot-bg: #fff9db; 
         }
 
@@ -44,7 +43,6 @@
         .item-holiday { background: transparent; color: var(--user-holiday-text); border: 1px solid #c3fae8; }
         .item-am { background: var(--am-bg); color: var(--am-color); border: 1px solid #a5d8ff; }
         .item-pm { background: var(--pm-bg); color: var(--pm-color); border: 1px solid #ffd8a8; }
-        /* 출근형 아이템: 연한 노랑 배경 + 진한 텍스트로 수정 */
         .item-ot { background: var(--ot-bg); color: var(--ot-color); border: 1px solid #ffe066; } 
         .item-memo { color: #adb5bd; font-size: 0.55rem; font-style: normal; margin-top: auto; padding-top: 1px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.1; word-break: break-all; }
 
@@ -112,7 +110,7 @@
         <div class="stat-card card-total">
             <h4 id="statMonthTitle">근무 현황</h4>
             <div class="value" id="statTotalDaysValue">총 0일 <span class="value-total-days">/ 0일</span></div>
-            <div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0일</span>, 출근형: <span class="highlight-ot">0일</span></div>
+            <div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0</span>, 출근형: <span class="highlight-ot">0</span></div>
         </div>
         <div class="stat-card card-am"><h4>오전반</h4><div class="value" id="statAMTotal">0일</div><div class="sub-value" id="statAMDetail">2회:0, 3회:0</div></div>
         <div class="stat-card card-pm"><h4>오후반</h4><div class="value" id="statPMTotal">0일</div><div class="sub-value" id="statPMDetail">2회:0, 3회:0</div></div>
@@ -197,6 +195,18 @@
         if (confirm(formatted + " 번호로 전화를 걸까요?")) { window.location.href = "tel:" + number; }
     }
 
+    function initSelects(year, month) {
+        const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
+        ySel.innerHTML = ''; mSel.innerHTML = '';
+        for (let y = 2025; y <= 2030; y++) {
+            const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y}년`;
+            if (y === year) opt.selected = true; ySel.appendChild(opt);
+        }
+        for (let m = 1; m <= 12; m++) {
+            const opt = document.createElement('option'); opt.value = m - 1; opt.innerText = `${m}월`;
+            if (m - 1 === month) opt.selected = true; mSel.appendChild(opt);
+        }
+    }
     function jumpToDate() { viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1); render(); }
     function jumpToToday() { viewDate = new Date(); render(); }
 
@@ -204,6 +214,7 @@
         const grid = document.getElementById('grid'); grid.innerHTML = '';
         const year = viewDate.getFullYear(), month = viewDate.getMonth(), lastDate = new Date(year, month + 1, 0).getDate(), realToday = new Date(); 
         initSelects(year, month);
+
         const firstDay = new Date(year, month, 1).getDay();
         const totalCells = (firstDay + lastDate) > 35 ? 42 : 35;
         const startDate = new Date(year, month, 1); startDate.setDate(startDate.getDate() - firstDay);
@@ -242,25 +253,12 @@
         }
         document.getElementById('statMonthTitle').innerText = `${year}년 ${month + 1}월`;
         document.getElementById('statTotalDaysValue').innerHTML = `총 ${s.total}일 <span class="value-total-days">/ ${lastDate}일</span>`;
-        document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}일</span>, 출근형: <span class="highlight-ot">${s.ot}일</span>`;
+        // 요청대로 숫자 뒤의 '일' 단위를 제거
+        document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}</span>, 출근형: <span class="highlight-ot">${s.ot}</span>`;
         document.getElementById('statAMTotal').innerText = `${s.am}일`; document.getElementById('statAMDetail').innerText = `2회:${s.am2}, 3회:${s.am3}`;
         document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
     }
 
-    function initSelects(year, month) {
-        const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
-        ySel.innerHTML = ''; mSel.innerHTML = '';
-        for (let y = 2025; y <= 2030; y++) {
-            const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y}년`;
-            if (y === year) opt.selected = true; ySel.appendChild(opt);
-        }
-        for (let m = 1; m <= 12; m++) {
-            const opt = document.createElement('option'); opt.value = m - 1; opt.innerText = `${m}월`;
-            if (m - 1 === month) opt.selected = true; mSel.appendChild(opt);
-        }
-    }
-    function jumpToDate() { viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1); render(); }
-    function jumpToToday() { viewDate = new Date(); render(); }
     let touchstartX = 0, touchendX = 0;
     const swipeArea = document.getElementById('swipeArea');
     swipeArea.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
@@ -318,7 +316,7 @@
             let bgColor = '#fff', textColor = '#333';
             if (id==='shiftAM' && selectedShift==='오전') { bgColor = 'var(--primary)'; textColor = '#fff'; }
             else if (id==='shiftPM' && selectedShift==='오후') { bgColor = 'var(--pm-color)'; textColor = '#fff'; }
-            else if (id==='shiftOT' && selectedShift==='출근형') { bgColor = '#fcc419'; textColor = '#fff'; } /* 모달 버튼은 기존 강조색 유지 */
+            else if (id==='shiftOT' && selectedShift==='출근형') { bgColor = '#fcc419'; textColor = '#fff'; }
             else if (id==='tang2' && selectedTang===2) { bgColor = 'var(--text-dark)'; textColor = '#fff'; }
             else if (id==='tang3' && selectedTang===3) { bgColor = 'var(--text-dark)'; textColor = '#fff'; }
             b.style.backgroundColor = bgColor; b.style.color = textColor;
