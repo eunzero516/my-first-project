@@ -11,6 +11,8 @@
             --user-holiday-cell-bg: #f2fdf7; --user-holiday-text: #099268; 
             --border: #e9ecef; --am-color: #1971c2; --am-bg: #e7f5ff;
             --pm-color: #fd7e14; --pm-bg: #fff4e6; --bg-standard: #f8f9fa; --text-dark: #333;
+            /* 출근형 전용 색상 수정: 가독성 강조 */
+            --ot-color: #e67e22; --ot-bg: #fff9db; 
         }
 
         body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-standard); display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; touch-action: pan-y; }
@@ -42,6 +44,8 @@
         .item-holiday { background: transparent; color: var(--user-holiday-text); border: 1px solid #c3fae8; }
         .item-am { background: var(--am-bg); color: var(--am-color); border: 1px solid #a5d8ff; }
         .item-pm { background: var(--pm-bg); color: var(--pm-color); border: 1px solid #ffd8a8; }
+        /* 출근형 아이템: 연한 노랑 배경 + 진한 텍스트로 수정 */
+        .item-ot { background: var(--ot-bg); color: var(--ot-color); border: 1px solid #ffe066; } 
         .item-memo { color: #adb5bd; font-size: 0.55rem; font-style: normal; margin-top: auto; padding-top: 1px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.1; word-break: break-all; }
 
         /* 통계 카드 */
@@ -53,45 +57,32 @@
         .stat-card h4 { margin: 0; font-size: 0.7rem; color: #868e96; font-weight: 700; }
         .stat-card .value { font-size: 1rem; font-weight: 800; color: var(--text-dark); } 
         .value-total-days { font-size: 0.75rem; font-weight: 600; color: #adb5bd; }
-        .stat-card .sub-value { font-size: 0.65rem; color: #495057; font-weight: 500; word-break: keep-all; line-height: 1.2; }
+        .stat-card .sub-value { font-size: 0.62rem; color: #495057; font-weight: 500; word-break: keep-all; line-height: 1.2; }
         .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
+        .highlight-ot { color: var(--ot-color); font-weight: 800; } 
 
         /* 공용 섹션 스타일 */
         .content-section { width: 100%; max-width: 950px; margin-top: 30px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee; }
         .section-label { background: #343a40; color: white; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: bold; }
 
-        /* 버스 운행표 이미지 섹션 */
+        /* 버스 및 비상연락망 */
         .bus-section { cursor: pointer; }
         .bus-section img { width: 100%; height: auto; display: block; }
-
-        /* 비상연락망 테이블 스타일 */
         .contact-table-wrapper { width: 100%; overflow-x: auto; padding: 10px; box-sizing: border-box; }
         .contact-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 300px; }
-        .contact-table th { background: #f8f9fa; padding: 12px 8px; border-bottom: 2px solid var(--border); color: #868e96; font-weight: 700; text-align: left; }
+        .contact-table th { background: #f8f9fa; padding: 12px 8px; border-bottom: 2px solid var(--border); color: #868e96; text-align: left; }
         .contact-table td { padding: 12px 8px; border-bottom: 1px solid #f1f3f5; color: var(--text-dark); font-weight: 600; }
-        .contact-table tr:last-child td { border-bottom: none; }
-        .phone-link { color: var(--primary); text-decoration: none; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-        .phone-link:hover { text-decoration: underline; }
+        .phone-link { color: var(--primary); text-decoration: none; cursor: pointer; font-weight: 700; }
 
         /* 기타 UI */
         .data-management { width: 100%; max-width: 950px; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
         .btn-data { padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 0.75rem; cursor: pointer; color: #666; }
         .toast { visibility: hidden; min-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 200; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
         .toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
-        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
-        
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99; backdrop-filter: blur(5px); cursor: pointer; }
         .modal-content { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 340px; }
-        
-        /* 이미지 확대 전용 스타일 */
-        .image-modal-content { 
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            z-index: 101; max-width: 95vw; max-height: 90vh; overflow: auto; 
-            background: #fff; border-radius: 15px; padding: 5px; box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
+        .image-modal-content { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 101; max-width: 95vw; max-height: 90vh; overflow: auto; background: #fff; border-radius: 15px; padding: 5px; }
         .image-modal-content img { width: 100%; height: auto; display: block; border-radius: 10px; }
-
         .footer-spacer { height: 50px; width: 100%; }
     </style>
 </head>
@@ -118,7 +109,11 @@
     </div>
 
     <div class="stats-container">
-        <div class="stat-card card-total"><h4 id="statMonthTitle">근무 현황</h4><div class="value" id="statTotalDaysValue">총 0일 <span class="value-total-days">/ 0일</span></div><div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0일</span></div></div>
+        <div class="stat-card card-total">
+            <h4 id="statMonthTitle">근무 현황</h4>
+            <div class="value" id="statTotalDaysValue">총 0일 <span class="value-total-days">/ 0일</span></div>
+            <div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0일</span>, 출근형: <span class="highlight-ot">0일</span></div>
+        </div>
         <div class="stat-card card-am"><h4>오전반</h4><div class="value" id="statAMTotal">0일</div><div class="sub-value" id="statAMDetail">2회:0, 3회:0</div></div>
         <div class="stat-card card-pm"><h4>오후반</h4><div class="value" id="statPMTotal">0일</div><div class="sub-value" id="statPMDetail">2회:0, 3회:0</div></div>
     </div>
@@ -138,11 +133,8 @@
         <div class="section-label">📞 비상연락망</div>
         <div class="contact-table-wrapper">
             <table class="contact-table" id="contactBody">
-                <thead>
-                    <tr><th>입사일</th><th>이름</th><th>휴대폰번호</th></tr>
-                </thead>
-                <tbody>
-                    </tbody>
+                <thead><tr><th>입사일</th><th>이름</th><th>휴대폰번호</th></tr></thead>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -151,25 +143,25 @@
 
     <div id="toast" class="toast"></div>
     <div class="modal-overlay" id="overlay" onclick="closeAllModals()"></div>
-    
-    <div class="image-modal-content" id="imageModal" onclick="closeAllModals()">
-        <img src="https://postfiles.pstatic.net/MjAyNjAxMjZfMTc4/MDAxNzY5Mzg2NDA4MDI5.mq4irpDcDk4GvxGSxGcyXqlDD14PvZMDPQ_18B7JSQog.vyg12ghm0NP-lrm-1pevy50oN6Gf8Q_ARw4bi3IxqFcg.PNG/IMG_3701.PNG?type=w773" 
-             alt="확대 이미지" referrerpolicy="no-referrer">
-    </div>
+    <div class="image-modal-content" id="imageModal" onclick="closeAllModals()"><img src="https://postfiles.pstatic.net/MjAyNjAxMjZfMTc4/MDAxNzY5Mzg2NDA4MDI5.mq4irpDcDk4GvxGSxGcyXqlDD14PvZMDPQ_18B7JSQog.vyg12ghm0NP-lrm-1pevy50oN6Gf8Q_ARw4bi3IxqFcg.PNG/IMG_3701.PNG?type=w773" referrerpolicy="no-referrer"></div>
 
     <div class="modal-content" id="modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:20px; z-index:100; width:85%; max-width:340px;">
         <h3 id="modalDate" style="margin:0 0 15px 0;">날짜 선택</h3>
-        <div style="margin-bottom:20px;"><label style="display:flex; align-items:center; cursor:pointer; font-weight:bold;"><input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width:20px; height:20px; margin-right:10px;"> 🌴 휴일 체크</label></div>
-        <div style="margin-bottom:20px;"><label style="font-weight:bold;">근무 타임</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="shiftAM" onclick="setShift('오전')" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">오전</button><button class="btn-toggle" id="shiftPM" onclick="setShift('오후')" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">오후</button></div></div>
-        <div style="margin-bottom:20px;"><label style="font-weight:bold;">업무 횟수</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="tang2" onclick="setTang(2)" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">2회</button><button class="btn-toggle" id="tang3" onclick="setTang(3)" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:10px;">3회</button></div></div>
-        <div style="margin-bottom:20px;"><label style="font-weight:bold;">메모</label><textarea id="memo" rows="2" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd;"></textarea></div>
+        <div style="margin-bottom:15px;"><label style="display:flex; align-items:center; cursor:pointer; font-weight:bold;"><input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width:20px; height:20px; margin-right:10px;"> 🌴 휴일 체크</label></div>
+        <div style="margin-bottom:15px;"><label style="font-weight:bold;">근무 타임</label>
+            <div style="display:flex; gap:5px; margin-top:5px;">
+                <button class="btn-toggle" id="shiftAM" onclick="setShift('오전')" style="flex:1; padding:10px 5px; border:1px solid #ddd; border-radius:8px; font-size:0.85rem;">오전</button>
+                <button class="btn-toggle" id="shiftPM" onclick="setShift('오후')" style="flex:1; padding:10px 5px; border:1px solid #ddd; border-radius:8px; font-size:0.85rem;">오후</button>
+                <button class="btn-toggle" id="shiftOT" onclick="setShift('출근형')" style="flex:1; padding:10px 5px; border:1px solid #ddd; border-radius:8px; font-size:0.85rem;">출근형</button>
+            </div>
+        </div>
+        <div style="margin-bottom:15px;"><label style="font-weight:bold;">업무 횟수</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="tang2" onclick="setTang(2)" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">2회</button><button class="btn-toggle" id="tang3" onclick="setTang(3)" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">3회</button></div></div>
+        <div style="margin-bottom:15px;"><label style="font-weight:bold;">메모</label><textarea id="memo" rows="2" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd;"></textarea></div>
         <button onclick="save()" style="width:100%; background:var(--text-dark); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold;">저장 완료</button>
     </div>
     
     <div class="modal-content" id="importModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:20px; z-index:100; width:85%; max-width:340px;">
-        <h3>데이터 불러오기</h3>
-        <textarea id="importArea" rows="6" style="width:100%; margin-bottom:15px; padding:10px; border:1px solid #ddd;"></textarea>
-        <button onclick="executeImport()" style="width:100%; background:var(--text-dark); color:white; padding:15px; border-radius:10px; font-weight:bold;">가져오기</button>
+        <h3>데이터 불러오기</h3><textarea id="importArea" rows="6" style="width:100%; margin-bottom:15px; padding:10px; border:1px solid #ddd;"></textarea><button onclick="executeImport()" style="width:100%; background:var(--text-dark); color:white; padding:15px; border-radius:10px; font-weight:bold;">가져오기</button>
     </div>
 
 <script>
@@ -179,25 +171,7 @@
     let activeKey = "", selectedShift = null, selectedTang = null;
 
     const contacts = [
-        { id: "240101", name: "신길웅", phone: "01063120267" },
-        { id: "160508", name: "이기인", phone: "01037575899" },
-        { id: "160524", name: "이해동", phone: "01043242222" },
-        { id: "171018", name: "최수영", phone: "01036717246" },
-        { id: "171115", name: "구동휘", phone: "01088905123" },
-        { id: "190901", name: "조찬회", phone: "01076797717" },
-        { id: "190916", name: "정의현", phone: "01091757747" },
-        { id: "200101", name: "문재홍", phone: "01032042071" },
-        { id: "200201", name: "이준규", phone: "01036685905" },
-        { id: "201208", name: "장대진", phone: "01063719303" },
-        { id: "210604", name: "김봉민", phone: "01067085357" },
-        { id: "220401", name: "김진배", phone: "01024010110" },
-        { id: "220401", name: "송정순", phone: "01075780972" },
-        { id: "220401", name: "윤진원", phone: "01036191254" },
-        { id: "220404", name: "한승후", phone: "01083348817" },
-        { id: "220906", name: "강현철", phone: "010" },
-        { id: "230413", name: "문기식", phone: "01077110668" },
-        { id: "260101", name: "우진서", phone: "01095075896" },
-        { id: "260201", name: "이창호", phone: "01022866208" }
+        { id: "240101", name: "신길웅", phone: "01063120267" }, { id: "160508", name: "이기인", phone: "01037575899" }, { id: "160524", name: "이해동", phone: "01043242222" }, { id: "171018", name: "최수영", phone: "01036717246" }, { id: "171115", name: "구동휘", phone: "01088905123" }, { id: "190901", name: "조찬회", phone: "01076797717" }, { id: "190916", name: "정의현", phone: "01091757747" }, { id: "200101", name: "문재홍", phone: "01032042071" }, { id: "200201", name: "이준규", phone: "01036685905" }, { id: "201208", name: "장대진", phone: "01063719303" }, { id: "210604", name: "김봉민", phone: "01067085357" }, { id: "220401", name: "김진배", phone: "01024010110" }, { id: "220401", name: "송정순", phone: "01075780972" }, { id: "220401", name: "윤진원", phone: "01036191254" }, { id: "220404", name: "한승후", phone: "01083348817" }, { id: "220906", name: "강현철", phone: "010" }, { id: "230413", name: "문기식", phone: "01077110668" }, { id: "260101", name: "우진서", phone: "01095075896" }, { id: "260201", name: "이창호", phone: "01022866208" }
     ];
 
     const baseHolidays = {
@@ -210,7 +184,6 @@
     };
 
     function initApp() { render(); renderContacts(); }
-
     function renderContacts() {
         const tbody = document.querySelector("#contactBody tbody");
         tbody.innerHTML = contacts.map(c => {
@@ -218,11 +191,60 @@
             return `<tr><td>${c.id}</td><td>${c.name}</td><td><a class="phone-link" onclick="makeCall('${c.phone}')">📱 ${displayPhone}</a></td></tr>`;
         }).join('');
     }
-
     function makeCall(number) {
         if (number === "010") { showToast("등록된 번호가 없습니다."); return; }
         const formatted = number.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
         if (confirm(formatted + " 번호로 전화를 걸까요?")) { window.location.href = "tel:" + number; }
+    }
+
+    function jumpToDate() { viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1); render(); }
+    function jumpToToday() { viewDate = new Date(); render(); }
+
+    function render() {
+        const grid = document.getElementById('grid'); grid.innerHTML = '';
+        const year = viewDate.getFullYear(), month = viewDate.getMonth(), lastDate = new Date(year, month + 1, 0).getDate(), realToday = new Date(); 
+        initSelects(year, month);
+        const firstDay = new Date(year, month, 1).getDay();
+        const totalCells = (firstDay + lastDate) > 35 ? 42 : 35;
+        const startDate = new Date(year, month, 1); startDate.setDate(startDate.getDate() - firstDay);
+        let s = { total: 0, holiday: 0, ot: 0, am: 0, am2: 0, am3: 0, pm: 0, pm2: 0, pm3: 0 };
+
+        for (let i = 0; i < totalCells; i++) {
+            const date = new Date(startDate); date.setDate(startDate.getDate() + i);
+            const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+            const isThisMonth = date.getMonth() === month;
+            const isToday = date.getFullYear() === realToday.getFullYear() && date.getMonth() === realToday.getMonth() && date.getDate() === realToday.getDate();
+            const cell = document.createElement('div'); cell.className = `day-cell ${isThisMonth ? '' : 'other-month'}`;
+            const holidayName = baseHolidays[key];
+            let dateClass = 'day-num' + (holidayName || date.getDay() === 0 ? ' holiday-date' : date.getDay() === 6 ? ' saturday-date' : '');
+            let content = `<div class="${dateClass}">${isToday ? `<span class="today-circle">${date.getDate()}</span>` : date.getDate()}</div>`;
+            if (holidayName) content += `<div class="holiday-name">${holidayName}</div>`;
+            
+            if (db[key]) {
+                const data = db[key];
+                if (isThisMonth) {
+                    if (data.isHoliday) s.holiday++; 
+                    else if (data.shift) {
+                        s.total++;
+                        if (data.shift === '오전') { s.am++; if (data.count == 2) s.am2++; else if (data.count == 3) s.am3++; }
+                        else if (data.shift === '오후') { s.pm++; if (data.count == 2) s.pm2++; else if (data.count == 3) s.pm3++; }
+                        else if (data.shift === '출근형') { s.ot++; }
+                    }
+                }
+                if (data.isHoliday) { cell.classList.add('user-holiday-active'); content += `<div class="item item-holiday">🌴 휴일</div>`; }
+                else if (data.shift) { 
+                    const shiftClass = data.shift === '오전' ? 'item-am' : data.shift === '오후' ? 'item-pm' : 'item-ot';
+                    content += `<div class="item ${shiftClass}">${data.shift}${data.count ? ' ' + data.count + '회' : ''}</div>`; 
+                }
+                if (data.memo) content += `<div class="item-memo">${data.memo}</div>`;
+            }
+            cell.innerHTML = content; cell.onclick = () => openEditModal(key); grid.appendChild(cell);
+        }
+        document.getElementById('statMonthTitle').innerText = `${year}년 ${month + 1}월`;
+        document.getElementById('statTotalDaysValue').innerHTML = `총 ${s.total}일 <span class="value-total-days">/ ${lastDate}일</span>`;
+        document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}일</span>, 출근형: <span class="highlight-ot">${s.ot}일</span>`;
+        document.getElementById('statAMTotal').innerText = `${s.am}일`; document.getElementById('statAMDetail').innerText = `2회:${s.am2}, 3회:${s.am3}`;
+        document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
     }
 
     function initSelects(year, month) {
@@ -237,49 +259,8 @@
             if (m - 1 === month) opt.selected = true; mSel.appendChild(opt);
         }
     }
-
     function jumpToDate() { viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1); render(); }
     function jumpToToday() { viewDate = new Date(); render(); }
-
-    function render() {
-        const grid = document.getElementById('grid'); grid.innerHTML = '';
-        const year = viewDate.getFullYear(), month = viewDate.getMonth(), lastDate = new Date(year, month + 1, 0).getDate(), realToday = new Date(); 
-        initSelects(year, month);
-        const firstDay = new Date(year, month, 1).getDay();
-        const totalCells = (firstDay + lastDate) > 35 ? 42 : 35;
-        const startDate = new Date(year, month, 1); startDate.setDate(startDate.getDate() - firstDay);
-        let s = { total: 0, holiday: 0, am: 0, am2: 0, am3: 0, pm: 0, pm2: 0, pm3: 0 };
-        for (let i = 0; i < totalCells; i++) {
-            const date = new Date(startDate); date.setDate(startDate.getDate() + i);
-            const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-            const isThisMonth = date.getMonth() === month;
-            const isToday = date.getFullYear() === realToday.getFullYear() && date.getMonth() === realToday.getMonth() && date.getDate() === realToday.getDate();
-            const cell = document.createElement('div'); cell.className = `day-cell ${isThisMonth ? '' : 'other-month'}`;
-            const holidayName = baseHolidays[key];
-            let dateClass = 'day-num' + (holidayName || date.getDay() === 0 ? ' holiday-date' : date.getDay() === 6 ? ' saturday-date' : '');
-            let content = `<div class="${dateClass}">${isToday ? `<span class="today-circle">${date.getDate()}</span>` : date.getDate()}</div>`;
-            if (holidayName) content += `<div class="holiday-name">${holidayName}</div>`;
-            if (db[key]) {
-                const data = db[key];
-                if (isThisMonth) {
-                    if (data.isHoliday) s.holiday++; else if (data.shift) {
-                        s.total++; if (data.shift === '오전') { s.am++; if (data.count == 2) s.am2++; else if (data.count == 3) s.am3++; }
-                        else { s.pm++; if (data.count == 2) s.pm2++; else if (data.count == 3) s.pm3++; }
-                    }
-                }
-                if (data.isHoliday) { cell.classList.add('user-holiday-active'); content += `<div class="item item-holiday">🌴 휴일</div>`; }
-                else if (data.shift) { content += `<div class="item ${data.shift === '오전' ? 'item-am' : 'item-pm'}">${data.shift} ${data.count}회</div>`; }
-                if (data.memo) content += `<div class="item-memo">${data.memo}</div>`;
-            }
-            cell.innerHTML = content; cell.onclick = () => openEditModal(key); grid.appendChild(cell);
-        }
-        document.getElementById('statMonthTitle').innerText = `${year}년 ${month + 1}월`;
-        document.getElementById('statTotalDaysValue').innerHTML = `총 ${s.total}일 <span class="value-total-days">/ ${lastDate}일</span>`;
-        document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}일</span>`;
-        document.getElementById('statAMTotal').innerText = `${s.am}일`; document.getElementById('statAMDetail').innerText = `2회:${s.am2}, 3회:${s.am3}`;
-        document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
-    }
-
     let touchstartX = 0, touchendX = 0;
     const swipeArea = document.getElementById('swipeArea');
     swipeArea.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
@@ -289,7 +270,6 @@
         if (touchendX < touchstartX - threshold) moveMonth(1);
         if (touchendX > touchstartX + threshold) moveMonth(-1);
     }
-
     function openEditModal(k) {
         activeKey = k; const data = db[k] || { isHoliday: false, shift: null, count: null, memo: '' };
         document.getElementById('modalDate').innerText = k; document.getElementById('isHoliday').checked = data.isHoliday;
@@ -300,7 +280,6 @@
     function showImageModal() { document.getElementById('overlay').style.display = 'block'; document.getElementById('imageModal').style.display = 'block'; }
     function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('modal').style.display = 'none'; document.getElementById('importModal').style.display = 'none'; document.getElementById('imageModal').style.display = 'none'; }
     function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "toast show"; setTimeout(() => t.className = "toast", 3000); }
-
     function exportData() {
         try {
             const jsonStr = JSON.stringify(db);
@@ -313,7 +292,6 @@
             showToast('데이터 코드가 복사되었습니다!');
         } catch (e) { alert('복사 실패'); }
     }
-
     function executeImport() {
         let code = document.getElementById('importArea').value.replace(/[^A-Za-z0-9+/=]/g, "");
         if (!code) return;
@@ -329,17 +307,21 @@
             }
         } catch (e) { alert('유효하지 않은 코드입니다.'); }
     }
-
     function setShift(v) { selectedShift = (selectedShift === v) ? null : v; updateButtons(); }
     function setTang(v) { selectedTang = (selectedTang === v) ? null : v; updateButtons(); }
     function updateButtons() {
         const isH = document.getElementById('isHoliday').checked;
         if (isH) { selectedShift = null; selectedTang = null; }
-        const btns = ['shiftAM', 'shiftPM', 'tang2', 'tang3'];
+        const btns = ['shiftAM', 'shiftPM', 'shiftOT', 'tang2', 'tang3'];
         btns.forEach(id => {
             const b = document.getElementById(id); b.disabled = isH;
-            b.style.backgroundColor = (id==='shiftAM' && selectedShift==='오전') ? 'var(--primary)' : (id==='shiftPM' && selectedShift==='오후') ? 'var(--pm-color)' : (id.includes('tang') && ((id==='tang2' && selectedTang===2) || (id==='tang3' && selectedTang===3))) ? 'var(--text-dark)' : '#fff';
-            b.style.color = (b.style.backgroundColor === 'rgb(255, 255, 255)' || b.style.backgroundColor === '#fff') ? '#333' : '#fff';
+            let bgColor = '#fff', textColor = '#333';
+            if (id==='shiftAM' && selectedShift==='오전') { bgColor = 'var(--primary)'; textColor = '#fff'; }
+            else if (id==='shiftPM' && selectedShift==='오후') { bgColor = 'var(--pm-color)'; textColor = '#fff'; }
+            else if (id==='shiftOT' && selectedShift==='출근형') { bgColor = '#fcc419'; textColor = '#fff'; } /* 모달 버튼은 기존 강조색 유지 */
+            else if (id==='tang2' && selectedTang===2) { bgColor = 'var(--text-dark)'; textColor = '#fff'; }
+            else if (id==='tang3' && selectedTang===3) { bgColor = 'var(--text-dark)'; textColor = '#fff'; }
+            b.style.backgroundColor = bgColor; b.style.color = textColor;
         });
     }
     function save() {
@@ -348,7 +330,6 @@
         render(); closeAllModals();
     }
     function moveMonth(o) { viewDate.setMonth(viewDate.getMonth() + o); render(); }
-    
     initApp();
 </script>
 </body>
