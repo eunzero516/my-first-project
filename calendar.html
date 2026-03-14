@@ -16,7 +16,8 @@
 
         body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-standard); display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; touch-action: pan-y; }
         .app-title { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 10px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; }
-        .app-logo { width: 45px; height: auto; }
+        /* 💡 이미지 사이즈 가로 45 -> 70으로 변경 */
+        .app-logo { width: 70px; height: auto; }
 
         /* 달력 스타일 */
         .calendar-container { width: 100%; max-width: 950px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px; user-select: none; }
@@ -195,18 +196,6 @@
         if (confirm(formatted + " 번호로 전화를 걸까요?")) { window.location.href = "tel:" + number; }
     }
 
-    function initSelects(year, month) {
-        const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
-        ySel.innerHTML = ''; mSel.innerHTML = '';
-        for (let y = 2025; y <= 2030; y++) {
-            const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y}년`;
-            if (y === year) opt.selected = true; ySel.appendChild(opt);
-        }
-        for (let m = 1; m <= 12; m++) {
-            const opt = document.createElement('option'); opt.value = m - 1; opt.innerText = `${m}월`;
-            if (m - 1 === month) opt.selected = true; mSel.appendChild(opt);
-        }
-    }
     function jumpToDate() { viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1); render(); }
     function jumpToToday() { viewDate = new Date(); render(); }
 
@@ -214,12 +203,10 @@
         const grid = document.getElementById('grid'); grid.innerHTML = '';
         const year = viewDate.getFullYear(), month = viewDate.getMonth(), lastDate = new Date(year, month + 1, 0).getDate(), realToday = new Date(); 
         initSelects(year, month);
-
         const firstDay = new Date(year, month, 1).getDay();
         const totalCells = (firstDay + lastDate) > 35 ? 42 : 35;
         const startDate = new Date(year, month, 1); startDate.setDate(startDate.getDate() - firstDay);
         let s = { total: 0, holiday: 0, ot: 0, am: 0, am2: 0, am3: 0, pm: 0, pm2: 0, pm3: 0 };
-
         for (let i = 0; i < totalCells; i++) {
             const date = new Date(startDate); date.setDate(startDate.getDate() + i);
             const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
@@ -230,7 +217,6 @@
             let dateClass = 'day-num' + (holidayName || date.getDay() === 0 ? ' holiday-date' : date.getDay() === 6 ? ' saturday-date' : '');
             let content = `<div class="${dateClass}">${isToday ? `<span class="today-circle">${date.getDate()}</span>` : date.getDate()}</div>`;
             if (holidayName) content += `<div class="holiday-name">${holidayName}</div>`;
-            
             if (db[key]) {
                 const data = db[key];
                 if (isThisMonth) {
@@ -253,12 +239,25 @@
         }
         document.getElementById('statMonthTitle').innerText = `${year}년 ${month + 1}월`;
         document.getElementById('statTotalDaysValue').innerHTML = `총 ${s.total}일 <span class="value-total-days">/ ${lastDate}일</span>`;
-        // 요청대로 숫자 뒤의 '일' 단위를 제거
         document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}</span>, 출근형: <span class="highlight-ot">${s.ot}</span>`;
         document.getElementById('statAMTotal').innerText = `${s.am}일`; document.getElementById('statAMDetail').innerText = `2회:${s.am2}, 3회:${s.am3}`;
         document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
     }
 
+    function initSelects(year, month) {
+        const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
+        ySel.innerHTML = ''; mSel.innerHTML = '';
+        for (let y = 2025; y <= 2030; y++) {
+            const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y}년`;
+            if (y === year) opt.selected = true; ySel.appendChild(opt);
+        }
+        for (let m = 1; m <= 12; m++) {
+            const opt = document.createElement('option'); opt.value = m - 1; opt.innerText = `${m}월`;
+            if (m - 1 === month) opt.selected = true; mSel.appendChild(opt);
+        }
+    }
+    function jumpToDate() { viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1); render(); }
+    function jumpToToday() { viewDate = new Date(); render(); }
     let touchstartX = 0, touchendX = 0;
     const swipeArea = document.getElementById('swipeArea');
     swipeArea.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
