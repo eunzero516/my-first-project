@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>빵곰이 근무표 (9407)</title>
+    <link class="favicon" rel="icon" href="https://postfiles.pstatic.net/MjAyNTEyMjZfMjgg/MDAxNzY2NzA1ODkxNDI4.jwR_hmBeX73gNUybaFzK1piDE3Dp6NPgib30YcaMvaQg.7BxiiFsCLAVzNkdQdORGL7WAVlKYT_a-_aaaIvT47gsg.PNG/image_1.png?type=w773" type="image/png" referrerpolicy="no-referrer">
+    <style>
+        :root {
+            --primary: #4a90e2; --holiday: #ff6b6b; --sat-color: #1c7ed6; 
+            --user-holiday-cell-bg: #f2fdf7; --user-holiday-text: #099268; 
+            --border: #e9ecef; --am-color: #1971c2; --am-bg: #e7f5ff;
+            --pm-color: #fd7e14; --pm-bg: #fff4e6; --bg-standard: #f8f9fa; --text-dark: #333;
+        }
+
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-standard); display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; touch-action: pan-y; }
+        .app-title { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin: 10px 0; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; }
+        .app-logo { width: 100px; height: auto; }
+
+        /* 달력 스타일 */
+        .calendar-container { width: 100%; max-width: 950px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 15px; user-select: none; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff; border-bottom: 1px solid var(--border); }
+        .month-selector { display: flex; gap: 4px; align-items: center; }
+        .month-selector select { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); border: none; background: transparent; cursor: pointer; outline: none; padding: 2px; border-radius: 5px; }
+        .btn-today { background: #f1f3f5; color: var(--text-dark); border: 1px solid #dee2e6; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-left: 4px; }
+        .nav-buttons button { cursor: pointer; border: 1px solid #ddd; background: white; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
+        .weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: #fafbfc; border-bottom: 1px solid var(--border); }
+        .weekday { text-align: center; padding: 8px 0; font-size: 0.7rem; color: #868e96; font-weight: bold; }
+        .weekday:nth-child(1) { color: var(--holiday); }
+        .weekday:nth-child(7) { color: var(--sat-color); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 82px; }
+        .day-cell { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3px 4px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; min-width: 0; overflow: hidden; background: #fff; position: relative; }
+        .day-cell:nth-child(7n) { border-right: none; }
+        .user-holiday-active { background-color: var(--user-holiday-cell-bg) !important; }
+        .day-num { font-size: 0.8rem; font-weight: 700; color: #495057; display: flex; align-items: center; min-height: 22px; }
+        .today-circle { background: var(--text-dark); color: white !important; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-left: -2px; font-size: 0.75rem; }
+        .holiday-date { color: var(--holiday) !important; }
+        .saturday-date { color: var(--sat-color) !important; }
+        .holiday-name { font-size: 0.55rem; color: var(--holiday); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; margin-bottom: 1px; }
+        .other-month { opacity: 0.2; }
+        .item { font-size: 0.6rem; padding: 1px 2px; border-radius: 3px; font-weight: 700; text-align: center; white-space: normal; word-break: keep-all; line-height: 1; display: block; }
+        .item-holiday { background: transparent; color: var(--user-holiday-text); border: 1px solid #c3fae8; }
+        .item-am { background: var(--am-bg); color: var(--am-color); border: 1px solid #a5d8ff; }
+        .item-pm { background: var(--pm-bg); color: var(--pm-color); border: 1px solid #ffd8a8; }
+        .item-memo { color: #adb5bd; font-size: 0.55rem; font-style: normal; margin-top: auto; padding-top: 1px; border-top: 1px dashed #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.1; word-break: break-all; }
+
+        /* 통계 카드 */
+        .stats-container { width: 100%; max-width: 950px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .stat-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 4px; border: 1px solid #eee; border-left-width: 5px; min-width: 0; }
+        .card-total { border-left-color: #343a40; }
+        .card-am { border-left-color: var(--am-color); }
+        .card-pm { border-left-color: var(--pm-color); }
+        .stat-card h4 { margin: 0; font-size: 0.7rem; color: #868e96; font-weight: 700; }
+        .stat-card .value { font-size: 1rem; font-weight: 800; color: var(--text-dark); } 
+        .value-total-days { font-size: 0.75rem; font-weight: 600; color: #adb5bd; }
+        .stat-card .sub-value { font-size: 0.62rem; color: #495057; font-weight: 500; word-break: keep-all; line-height: 1.2; }
+        .highlight-holiday { color: var(--user-holiday-text); font-weight: bold; }
+
+        /* 공용 섹션 스타일 */
+        .content-section { width: 100%; max-width: 950px; margin-top: 30px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee; }
+        .section-label { background: #343a40; color: white; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: bold; }
+
+        /* 이미지 섹션 스타일 */
+        .image-section img { width: 100%; height: auto; display: block; cursor: pointer; border-bottom: 1px solid #f1f3f5; }
+        .image-section img:last-child { border-bottom: none; }
+
+        /* 연락망 테이블 스타일 */
+        .table-container { padding: 10px; overflow-x: auto; }
+        .contact-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem; }
+        .contact-table th { background: #f8f9fa; color: #495057; font-weight: 700; padding: 8px 4px; border-bottom: 2px solid #dee2e6; }
+        .contact-table td { padding: 8px 4px; border-bottom: 1px solid #eee; color: #333; }
+        .contact-table tr:nth-child(even) { background-color: #fbfbfc; }
+        .tel-link { color: #1a73e8; font-weight: bold; text-decoration: none; display: inline-block; padding: 2px 6px; border-radius: 4px; background: #e8f0fe; font-size: 0.8rem; letter-spacing: -0.5px; }
+        .sub-group-title { background: #e9ecef !important; font-weight: bold; text-align: left; padding-left: 10px !important; font-size: 0.8rem; color: #495057; }
+
+        /* 기타 UI */
+        .data-management { width: 100%; max-width: 950px; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+        .btn-data { padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 0.75rem; cursor: pointer; color: #666; }
+        .toast { visibility: hidden; min-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 200; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
+        .toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99; backdrop-filter: blur(5px); cursor: pointer; }
+        .modal-content { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); z-index: 100; width: 85%; max-width: 340px; }
+        .image-modal-content { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 101; max-width: 95vw; max-height: 90vh; overflow: auto; background: #fff; border-radius: 15px; padding: 5px; }
+        .image-modal-content img { width: 100%; height: auto; display: block; border-radius: 10px; }
+        .footer-spacer { height: 50px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <h1 class="app-title">
+        <img src="https://postfiles.pstatic.net/MjAyNTEyMjZfMjgg/MDAxNzY2NzA1ODkxNDI4.jwR_hmBeX73gNUybaFzK1piDE3Dp6NPgib30YcaMvaQg.7BxiiFsCLAVzNkdQdORGL7WAVlKYT_a-_aaaIvT47gsg.PNG/image_1.png?type=w773" 
+             alt="로고" class="app-logo" referrerpolicy="no-referrer">
+        빵곰이 근무표 (9407)
+    </h1>
+
+    <div class="calendar-container" id="swipeArea">
+        <div class="header">
+            <div class="nav-buttons"><button onclick="moveMonth(-1)">◀</button></div>
+            <div class="month-selector">
+                <select id="yearSelect" onchange="jumpToDate()"></select>
+                <select id="monthSelect" onchange="jumpToDate()"></select>
+                <button onclick="jumpToToday()" class="btn-today">오늘</button>
+            </div>
+            <div class="nav-buttons"><button onclick="moveMonth(1)">▶</button></div>
+        </div>
+        <div class="weekdays"><div class="weekday">일</div><div class="weekday">월</div><div class="weekday">화</div><div class="weekday">수</div><div class="weekday">목</div><div class="weekday">금</div><div class="weekday">토</div></div>
+        <div class="calendar-grid" id="grid"></div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card card-total">
+            <h4 id="statMonthTitle">근무 현황</h4>
+            <div class="value" id="statTotalDaysValue">총 0일 <span class="value-total-days">/ 0일</span></div>
+            <div class="sub-value" id="statHolidayDetail">휴일: <span class="highlight-holiday">0</span></div>
+        </div>
+        <div class="stat-card card-am"><h4>오전반</h4><div class="value" id="statAMTotal">0일</div><div class="sub-value" id="statAMDetail">2회:0, 3회:0</div></div>
+        <div class="stat-card card-pm"><h4>오후반</h4><div class="value" id="statPMTotal">0일</div><div class="sub-value" id="statPMDetail">2회:0, 3회:0</div></div>
+    </div>
+
+    <div class="data-management">
+        <button class="btn-data" onclick="exportData()">데이터 코드 복사</button>
+        <button class="btn-data" onclick="openImportModal()">데이터 불러오기</button>
+    </div>
+
+    <div class="content-section image-section">
+        <div class="section-label">🚌 9407번 운행 시간표 (클릭 시 확대)</div>
+        <img src="https://wsrv.nl/?url=postfiles.pstatic.net/MjAyNjA1MTZfMjc3/MDAxNzc4OTIyMDA4NDQ1.uJDoQ_GXvwAfciVtqssJGHLMX_t2c9x5gLwnXrErnusg.Q7jTFIGFYJEGwmO4h4jvgZgNe0BaZdJAf1w2WrEXuHEg.JPEG/01.jpg?type=w773" 
+             onclick="showImageModal(this.src)" alt="9407번 시간표 1" referrerpolicy="no-referrer">
+        <img src="https://wsrv.nl/?url=postfiles.pstatic.net/MjAyNjA1MTZfMjUg/MDAxNzc4OTIyMDA4NDYy.rTYNhe1V80gyCIxeqdYMN5NrH_ZgPLZ-qWo20m0bI-cg.yFKliS48eaNE_4AF3KkS3ux7Sy8Cxs6xdJmQjDjNmFMg.JPEG/02.jpg?type=w773" 
+             onclick="showImageModal(this.src)" alt="9407번 시간표 2" referrerpolicy="no-referrer">
+        <img src="https://wsrv.nl/?url=postfiles.pstatic.net/MjAyNjA1MTZfMTQz/MDAxNzc4OTIyMDA4NDUw.bRnxr9NNr0dI33R99u11h9VxYqCuegT6PYyp6Y6G3h4g.CtijDR6Ru1_eZDu9yEW7Q1nblstGUqLtxmIZrBSMIOkg.JPEG/03.jpg?type=w773" 
+             onclick="showImageModal(this.src)" alt="9407번 시간표 3" referrerpolicy="no-referrer">
+    </div>
+
+    <div class="content-section image-section">
+        <div class="section-label">📞 비상연락망 (클릭 시 확대)</div>
+        <img src="https://wsrv.nl/?url=postfiles.pstatic.net/MjAyNjA1MTZfMTUz/MDAxNzc4OTIwMzEyMTQx.T2XU4Rl2LCI9KdkhMQjURrEbjDOZuo0gVfKULULFlXQg.oH0k4KtKasB0Gmit_NIJiQcOakc8kuxY7nwt1rVoNEgg.PNG/%EB%B9%84%EC%83%81%EC%97%B0%EB%9D%BD%EB%A7%9D.PNG?type=w773" 
+             onclick="showImageModal(this.src)" alt="비상연락망 이미지" referrerpolicy="no-referrer">
+        
+        <div class="section-label" style="background:#495057; font-size:0.85rem;">📋 비상연락망 텍스트 리스트 (클릭 시 자동 전화연결)</div>
+        <div class="table-container">
+            <table class="contact-table">
+                <thead>
+                    <tr>
+                        <th style="width:20%">구분</th>
+                        <th style="width:35%">이름</th>
+                        <th style="width:45%">전화번호</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="3" class="sub-group-title">🔵 A팀</td></tr>
+                    <tr><td>1</td><td>최종길</td><td><a href="#" class="tel-link" onclick="callPhone('최종길', '010-6271-3244')">010-6271-3244</a></td></tr>
+                    <tr><td>2</td><td>홍성기</td><td><a href="#" class="tel-link" onclick="callPhone('홍성기', '010-8868-7401')">010-8868-7401</a></td></tr>
+                    <tr><td>3</td><td>이상열</td><td><a href="#" class="tel-link" onclick="callPhone('이상열', '010-4118-2232')">010-4118-2232</a></td></tr>
+                    <tr><td>4</td><td>이문원</td><td><a href="#" class="tel-link" onclick="callPhone('이문원', '010-3794-6370')">010-3794-6370</a></td></tr>
+                    <tr><td>5</td><td>송태섭</td><td><a href="#" class="tel-link" onclick="callPhone('송태섭', '010-7588-2800')">010-7588-2800</a></td></tr>
+                    <tr><td>6</td><td>차진영</td><td><a href="#" class="tel-link" onclick="callPhone('차진영', '010-5066-6706')">010-5066-6706</a></td></tr>
+                    <tr><td>7</td><td>이명규</td><td><a href="#" class="tel-link" onclick="callPhone('이명규', '010-6219-2191')">010-6219-2191</a></td></tr>
+                    <tr><td>8</td><td>박현석</td><td><a href="#" class="tel-link" onclick="callPhone('박현석', '010-5796-5773')">010-5796-5773</a></td></tr>
+                    <tr><td>9</td><td>최경주</td><td><a href="#" class="tel-link" onclick="callPhone('최경주', '010-2310-3004')">010-2310-3004</a></td></tr>
+                    <tr><td>10</td><td>한재필</td><td><a href="#" class="tel-link" onclick="callPhone('한재필', '010-4023-9672')">010-4023-9672</a></td></tr>
+                    <tr><td>11</td><td>한상석</td><td><a href="#" class="tel-link" onclick="callPhone('한상석', '010-9320-2267')">010-9320-2267</a></td></tr>
+                    <tr><td>12</td><td>정희철</td><td><a href="#" class="tel-link" onclick="callPhone('정희철', '010-3410-7873')">010-3410-7873</a></td></tr>
+                    <tr><td>13</td><td>이성일</td><td><a href="#" class="tel-link" onclick="callPhone('이성일', '010-9858-7250')">010-9858-7250</a></td></tr>
+                    <tr><td>14</td><td>정만진</td><td><a href="#" class="tel-link" onclick="callPhone('정만진', '010-8215-7791')">010-8215-7791</a></td></tr>
+                    <tr><td>15</td><td>정대경</td><td><a href="#" class="tel-link" onclick="callPhone('정대경', '010-9456-1300')">010-9456-1300</a></td></tr>
+                    <tr><td>16</td><td>최병재</td><td><a href="#" class="tel-link" onclick="callPhone('최병재', '010-7900-9887')">010-7900-9887</a></td></tr>
+                    <tr><td>17</td><td>강귀성</td><td><a href="#" class="tel-link" onclick="callPhone('강귀성', '010-2782-2449')">010-2782-2449</a></td></tr>
+                    <tr><td>18</td><td>우진서</td><td><a href="#" class="tel-link" onclick="callPhone('우진서', '010-9507-5896')">010-9507-5896</a></td></tr>
+                    <tr><td>반디4</td><td>허철</td><td><a href="#" class="tel-link" onclick="callPhone('허철(반디4)', '010-4655-4474')">010-4655-4474</a></td></tr>
+                    <tr><td>반디4</td><td>정광호</td><td><a href="#" class="tel-link" onclick="callPhone('정광호', '010-5345-8652')">010-5345-8652</a></td></tr>
+                    <tr><td>반디4</td><td>조상현</td><td><a href="#" class="tel-link" onclick="callPhone('조상현', '010-9249-4302')">010-9249-4302</a></td></tr>
+                    <tr><td>반디4</td><td>김병호</td><td><a href="#" class="tel-link" onclick="callPhone('김병호', '010-2555-3305')">010-2555-3305</a></td></tr>
+
+                    <tr><td colspan="3" class="sub-group-title">🔴 B팀</td></tr>
+                    <tr><td>1</td><td>홍석진</td><td><a href="#" class="tel-link" onclick="callPhone('홍석진', '010-6297-3660')">010-6297-3660</a></td></tr>
+                    <tr><td>2</td><td>양자중</td><td><a href="#" class="tel-link" onclick="callPhone('양자중', '010-2213-2119')">010-2213-2119</a></td></tr>
+                    <tr><td>3</td><td>김용택</td><td><a href="#" class="tel-link" onclick="callPhone('김용택', '010-4152-7969')">010-4152-7969</a></td></tr>
+                    <tr><td>4</td><td>김정기</td><td><a href="#" class="tel-link" onclick="callPhone('김정기', '010-9204-7872')">010-9204-7872</a></td></tr>
+                    <tr><td>5</td><td>임연욱</td><td><a href="#" class="tel-link" onclick="callPhone('임연욱', '010-3597-9973')">010-3597-9973</a></td></tr>
+                    <tr><td>6</td><td>오경진</td><td><a href="#" class="tel-link" onclick="callPhone('오경진', '010-9244-3456')">010-9244-3456</a></td></tr>
+                    <tr><td>7</td><td>이성만</td><td><a href="#" class="tel-link" onclick="callPhone('이성만', '010-9010-4087')">010-9010-4087</a></td></tr>
+                    <tr><td>8</td><td>류형욱</td><td><a href="#" class="tel-link" onclick="callPhone('류형욱', '010-8865-3724')">010-8865-3724</a></td></tr>
+                    <tr><td>9</td><td>허범용</td><td><a href="#" class="tel-link" onclick="callPhone('허범용', '010-9242-0233')">010-9242-0233</a></td></tr>
+                    <tr><td>10</td><td>김일헌</td><td><a href="#" class="tel-link" onclick="callPhone('김일헌', '010-6397-3221')">010-6397-3221</a></td></tr>
+                    <tr><td>11</td><td>박영조</td><td><a href="#" class="tel-link" onclick="callPhone('박영조', '010-2037-5825')">010-2037-5825</a></td></tr>
+                    <tr><td>12</td><td>김비오</td><td><a href="#" class="tel-link" onclick="callPhone('김비오', '010-7138-3217')">010-7138-3217</a></td></tr>
+                    <tr><td>13</td><td>김원규</td><td><a href="#" class="tel-link" onclick="callPhone('김원규', '010-8791-7004')">010-8791-7004</a></td></tr>
+                    <tr><td>14</td><td>이필성</td><td><a href="#" class="tel-link" onclick="callPhone('이필성', '010-5028-2698')">010-5028-2698</a></td></tr>
+                    <tr><td>15</td><td>주수강</td><td><a href="#" class="tel-link" onclick="callPhone('주수강', '010-2307-0492')">010-2307-0492</a></td></tr>
+                    <tr><td>16</td><td>유동열</td><td><a href="#" class="tel-link" onclick="callPhone('유동열', '010-3235-7126')">010-3235-7126</a></td></tr>
+                    <tr><td>17</td><td>김용상</td><td><a href="#" class="tel-link" onclick="callPhone('김용상', '010-5897-7324')">010-5897-7324</a></td></tr>
+                    <tr><td>18</td><td>노승균</td><td><a href="#" class="tel-link" onclick="callPhone('노승균', '010-5842-1105')">010-5842-1105</a></td></tr>
+                    <tr><td>19</td><td>이영일</td><td><a href="#" class="tel-link" onclick="callPhone('이영일', '010-4169-9282')">010-4169-9282</a></td></tr>
+                    <tr><td>20</td><td>민경락</td><td><a href="#" class="tel-link" onclick="callPhone('민경락', '010-9279-6351')">010-9279-6351</a></td></tr>
+                    <tr><td>반디4</td><td>정평식</td><td><a href="#" class="tel-link" onclick="callPhone('정평식(반디4)', '010-3608-2370')">010-3608-2370</a></td></tr>
+                    <tr><td>반디3</td><td>장기수(지원)</td><td><a href="#" class="tel-link" onclick="callPhone('장기수(반디3)', '010-2668-9853')">010-2668-9853</a></td></tr>
+
+                    <tr><td colspan="3" class="sub-group-title">🏢 본사 및 차고지 운영진</td></tr>
+                    <tr><td>본사</td><td>장효순 본부장</td><td><a href="#" class="tel-link" onclick="callPhone('장효순 본부장', '010-3667-7014')">010-3667-7014</a></td></tr>
+                    <tr><td>지사</td><td>엄재곤 지사장</td><td><a href="#" class="tel-link" onclick="callPhone('엄재곤 지사장', '010-4252-6732')">010-4252-6732</a></td></tr>
+                    <tr><td>분당</td><td>전진탁 소장</td><td><a href="#" class="tel-link" onclick="callPhone('전진탁 소장', '010-6256-6117')">010-6256-6117</a></td></tr>
+                    <tr><td>안전부</td><td>김진구 팀장</td><td><a href="#" class="tel-link" onclick="callPhone('김진구 팀장', '010-3351-4686')">010-3351-4686</a></td></tr>
+                    <tr><td>안전부</td><td>라정훈 대리</td><td><a href="#" class="tel-link" onclick="callPhone('라정훈 대리', '010-8911-3645')">010-8911-3645</a></td></tr>
+                    <tr><td>1차고</td><td>성현석 주임</td><td><a href="#" class="tel-link" onclick="callPhone('성현석 주임', '010-4230-7722')">010-4230-7722</a></td></tr>
+                    <tr><td>분당</td><td>정비과</td><td><a href="#" class="tel-link" onclick="callPhone('분당 정비과', '031-716-7115')">031-716-7115</a></td></tr>
+                    <tr><td>광주</td><td>공장</td><td><a href="#" class="tel-link" onclick="callPhone('광주 공장', '031-768-7881')">031-768-7881</a></td></tr>
+                    <tr><td>2차고</td><td>김영우 주임</td><td><a href="#" class="tel-link" onclick="callPhone('김영우 주임', '010-2777-1629')">010-2777-1629</a></td></tr>
+                    <tr><td>2차고</td><td>윤재환 주임</td><td><a href="#" class="tel-link" onclick="callPhone('윤재환 주임', '010-5140-1605')">010-5140-1605</a></td></tr>
+                    <tr><td>2차고</td><td>김상일 주임</td><td><a href="#" class="tel-link" onclick="callPhone('김상일 주임', '010-5298-8836')">010-5298-8836</a></td></tr>
+                    <tr><td>2차고</td><td>배차실</td><td><a href="#" class="tel-link" onclick="callPhone('2차고 배차실', '010-2946-6114')">010-2946-6114</a></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer-spacer"></div>
+
+    <div id="toast" class="toast"></div>
+    <div class="modal-overlay" id="overlay" onclick="closeAllModals()"></div>
+    
+    <div class="image-modal-content" id="imageModal" onclick="closeAllModals()">
+        <img id="modalTargetImg" src="" referrerpolicy="no-referrer">
+    </div>
+
+    <div class="modal-content" id="modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:20px; z-index:100; width:85%; max-width:340px;">
+        <h3 id="modalDate" style="margin:0 0 15px 0;">날짜 선택</h3>
+        <div style="margin-bottom:15px;"><label style="display:flex; align-items:center; cursor:pointer; font-weight:bold;"><input type="checkbox" id="isHoliday" onchange="updateButtons()" style="width:20px; height:20px; margin-right:10px;"> 🌴 휴일 체크</label></div>
+        <div style="margin-bottom:15px;"><label style="font-weight:bold;">근무 타임</label>
+            <div style="display:flex; gap:5px; margin-top:5px;">
+                <button class="btn-toggle" id="shiftAM" onclick="setShift('오전')" style="flex:1; padding:10px 5px; border:1px solid #ddd; border-radius:8px; font-size:0.85rem;">오전</button>
+                <button class="btn-toggle" id="shiftPM" onclick="setShift('오후')" style="flex:1; padding:10px 5px; border:1px solid #ddd; border-radius:8px; font-size:0.85rem;">오후</button>
+            </div>
+        </div>
+        <div style="margin-bottom:15px;"><label style="font-weight:bold;">업무 횟수</label><div style="display:flex; gap:8px;"><button class="btn-toggle" id="tang2" onclick="setTang(2)" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">2회</button><button class="btn-toggle" id="tang3" onclick="setTang(3)" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">3회</button></div></div>
+        <div style="margin-bottom:15px;"><label style="font-weight:bold;">메모</label><textarea id="memo" rows="2" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd("></textarea></div>
+        <button onclick="save()" style="width:100%; background:var(--text-dark); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold;">저장 완료</button>
+    </div>
+    
+    <div class="modal-content" id="importModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:30px; border-radius:20px; z-index:100; width:85%; max-width:340px;">
+        <h3>데이터 불러오기</h3><textarea id="importArea" rows="6" style="width:100%; margin-bottom:15px; padding:10px; border:1px solid #ddd;"></textarea><button onclick="executeImport()" style="width:100%; background:var(--text-dark); color:white; padding:15px; border-radius:10px; font-weight:bold;">가져오기</button>
+    </div>
+
+<script>
+    let viewDate = new Date();
+    const STORAGE_KEY = 'bbanggom_stable_data';
+    let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    let activeKey = "", selectedShift = null, selectedTang = null;
+
+    const baseHolidays = {
+        "2025-01-01":"신정","2025-01-29":"설날","2025-03-01":"삼일절","2025-05-05":"어린이날","2025-12-25":"크리스마스",
+        "2026-01-01":"신정","2026-02-17":"설날","2026-03-01":"삼일절","2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-06-06":"현충일","2026-08-15":"광복절","2026-09-25":"추석","2026-10-03":"개천절","2026-10-09":"한글날","2026-12-25":"크리스마스",
+        "2027-02-07":"설날","2027-05-13":"부처님오신날","2027-09-15":"추석","2027-12-25":"크리스마스",
+        "2028-01-27":"설날","2028-05-02":"부처님오신날","2028-10-03":"추석/개천절","2028-12-25":"크리스마스",
+        "2029-02-13":"설날","2029-05-20":"부처님오신날","2029-09-22":"추석","2029-12-25":"크리스마스",
+        "2030-02-03":"설날","2030-05-09":"부처님오신날","2030-09-12":"추석","2030-12-25":"크리스마스"
+    };
+
+    function clearFebruary2026() {
+        let cleared = false;
+        Object.keys(db).forEach(key => {
+            if (key.startsWith("2026-02-")) {
+                delete db[key];
+                cleared = true;
+            }
+        });
+        if (cleared) localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    }
+
+    function initApp() { clearFebruary2026(); render(); }
+    function jumpToDate() { viewDate = new Date(parseInt(document.getElementById('yearSelect').value), parseInt(document.getElementById('monthSelect').value), 1); render(); }
+    function jumpToToday() { viewDate = new Date(); render(); }
+
+    function render() {
+        const grid = document.getElementById('grid'); grid.innerHTML = '';
+        const year = viewDate.getFullYear(), month = viewDate.getMonth(), lastDate = new Date(year, month + 1, 0).getDate(), realToday = new Date(); 
+        initSelects(year, month);
+        const firstDay = new Date(year, month, 1).getDay();
+        const totalCells = (firstDay + lastDate) > 35 ? 42 : 35;
+        const startDate = new Date(year, month, 1); startDate.setDate(startDate.getDate() - firstDay);
+        let s = { total: 0, holiday: 0, am: 0, am2: 0, am3: 0, pm: 0, pm2: 0, pm3: 0 };
+        
+        for (let i = 0; i < totalCells; i++) {
+            const date = new Date(startDate); date.setDate(startDate.getDate() + i);
+            const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+            const isThisMonth = date.getMonth() === month;
+            const isToday = date.getFullYear() === realToday.getFullYear() && date.getMonth() === realToday.getMonth() && date.getDate() === realToday.getDate();
+            const cell = document.createElement('div'); cell.className = `day-cell ${isThisMonth ? '' : 'other-month'}`;
+            const holidayName = baseHolidays[key];
+            let dateClass = 'day-num' + (holidayName || date.getDay() === 0 ? ' holiday-date' : date.getDay() === 6 ? ' saturday-date' : '');
+            let content = `<div class="${dateClass}">${isToday ? `<span class="today-circle">${date.getDate()}</span>` : date.getDate()}</div>`;
+            if (holidayName) content += `<div class="holiday-name">${holidayName}</div>`;
+            
+            if (db[key]) {
+                const data = db[key];
+                if (isThisMonth) {
+                    if (data.isHoliday) s.holiday++; 
+                    else if (data.shift) {
+                        s.total++;
+                        if (data.shift === '오전') { s.am++; if (data.count == 2) s.am2++; else if (data.count == 3) s.am3++; }
+                        else if (data.shift === '오후') { s.pm++; if (data.count == 2) s.pm2++; else if (data.count == 3) s.pm3++; }
+                    }
+                }
+                if (data.isHoliday) { cell.classList.add('user-holiday-active'); content += `<div class="item item-holiday">🌴 휴일</div>`; }
+                else if (data.shift && data.shift !== '출근형') { 
+                    const shiftClass = data.shift === '오전' ? 'item-am' : 'item-pm';
+                    content += `<div class="item ${shiftClass}">${data.shift}${data.count ? ' ' + data.count + '회' : ''}</div>`; 
+                }
+                if (data.memo) content += `<div class="item-memo">${data.memo}</div>`;
+            }
+            cell.innerHTML = content; cell.onclick = () => openEditModal(key); grid.appendChild(cell);
+        }
+        document.getElementById('statMonthTitle').innerText = `${year}년 ${month + 1}월`;
+        document.getElementById('statTotalDaysValue').innerHTML = `총 ${s.total}일 <span class="value-total-days">/ ${lastDate}일</span>`;
+        document.getElementById('statHolidayDetail').innerHTML = `휴일: <span class="highlight-holiday">${s.holiday}</span>`;
+        document.getElementById('statAMTotal').innerText = `${s.am}일`; document.getElementById('statAMDetail').innerText = `2회:${s.am2}, 3회:${s.am3}`;
+        document.getElementById('statPMTotal').innerText = `${s.pm}일`; document.getElementById('statPMDetail').innerText = `2회:${s.pm2}, 3회:${s.pm3}`;
+    }
+
+    function initSelects(year, month) {
+        const ySel = document.getElementById('yearSelect'), mSel = document.getElementById('monthSelect');
+        ySel.innerHTML = ''; mSel.innerHTML = '';
+        for (let y = 2025; y <= 2030; y++) {
+            const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y}년`;
+            if (y === year) opt.selected = true; ySel.appendChild(opt);
+        }
+        for (let m = 1; m <= 12; m++) {
+            const opt = document.createElement('option'); opt.value = m - 1; opt.innerText = `${m}월`;
+            if (m - 1 === month) opt.selected = true; mSel.appendChild(opt);
+        }
+    }
+    let touchstartX = 0, touchendX = 0;
+    const swipeArea = document.getElementById('swipeArea');
+    swipeArea.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
+    swipeArea.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); }, {passive: true});
+    function handleGesture() {
+        const threshold = 50;
+        if (touchendX < touchstartX - threshold) moveMonth(1);
+        if (touchendX > touchstartX + threshold) moveMonth(-1);
+    }
+    function openEditModal(k) {
+        activeKey = k; const data = db[k] || { isHoliday: false, shift: null, count: null, memo: '' };
+        document.getElementById('modalDate').innerText = k; document.getElementById('isHoliday').checked = data.isHoliday;
+        document.getElementById('memo').value = data.memo; selectedShift = (data.shift === '출근형') ? null : data.shift; selectedTang = data.count;
+        updateButtons(); document.getElementById('overlay').style.display = 'block'; document.getElementById('modal').style.display = 'block';
+    }
+    function openImportModal() { document.getElementById('importArea').value = ""; document.getElementById('overlay').style.display = 'block'; document.getElementById('importModal').style.display = 'block'; }
+    function showImageModal(imgSrc) { 
+        if(!imgSrc || imgSrc.startsWith('//')) return;
+        document.getElementById('modalTargetImg').src = imgSrc;
+        document.getElementById('overlay').style.display = 'block'; document.getElementById('imageModal').style.display = 'block'; 
+    }
+    
+    function callPhone(name, telNum) {
+        event.preventDefault();
+        const cleanNumber = telNum.replace(/[^0-9]/g, '');
+        if (confirm(`${name} 님에게 전화를 걸겠습니까?\n[ 번호: ${telNum} ]`)) window.location.href = `tel:${cleanNumber}`;
+    }
+
+    function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('modal').style.display = 'none'; document.getElementById('importModal').style.display = 'none'; document.getElementById('imageModal').style.display = 'none'; }
+    function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "toast show"; setTimeout(() => t.className = "toast", 3000); }
+    
+    function exportData() {
+        try {
+            const jsonStr = JSON.stringify(db);
+            const bytes = new TextEncoder().encode(jsonStr);
+            const base64 = btoa(String.fromCharCode(...bytes));
+            const tempInput = document.createElement("textarea");
+            tempInput.value = base64; document.body.appendChild(tempInput);
+            tempInput.select(); document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            showToast('데이터 코드가 복사되었습니다!');
+        } catch (e) { alert('복사 실패'); }
+    }
+    function executeImport() {
+        let code = document.getElementById('importArea').value.replace(/[^A-Za-z0-9+/=]/g, "");
+        if (!code) return;
+        try {
+            const binary = atob(code);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            const jsonStr = new TextDecoder().decode(bytes);
+            const imported = JSON.parse(jsonStr);
+            if (confirm('데이터를 덮어쓰시겠습니까?')) {
+                db = imported; localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+                render(); closeAllModals(); showToast('불러오기 성공!');
+            }
+        } catch (e) { alert('유효하지 않은 코드입니다.'); }
+    }
+    function setShift(v) { selectedShift = (selectedShift === v) ? null : v; updateButtons(); }
+    function setTang(v) { selectedTang = (selectedTang === v) ? null : v; updateButtons(); }
+    
+    function updateButtons() {
+        const isH = document.getElementById('isHoliday').checked;
+        if (isH) { selectedShift = null; selectedTang = null; }
+        const btns = ['shiftAM', 'shiftPM', 'tang2', 'tang3'];
+        btns.forEach(id => {
+            const b = document.getElementById(id); if(!b) return;
+            b.disabled = isH;
+            let bgColor = '#fff', textColor = '#333';
+            if (id==='shiftAM' && selectedShift==='오전') { bgColor = 'var(--primary)'; textColor = '#fff'; }
+            else if (id==='shiftPM' && selectedShift==='오후') { bgColor = 'var(--pm-color)'; textColor = '#fff'; }
+            else if (id==='tang2' && selectedTang===2) { bgColor = 'var(--text-dark)'; textColor = '#fff'; }
+            else if (id==='tang3' && selectedTang===3) { bgColor = 'var(--text-dark)'; textColor = '#fff'; }
+            b.style.backgroundColor = bgColor; b.style.color = textColor;
+        });
+    }
+    function save() {
+        db[activeKey] = { isHoliday: document.getElementById('isHoliday').checked, shift: selectedShift, count: selectedTang, memo: document.getElementById('memo').value };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        render(); closeAllModals();
+    }
+    function moveMonth(o) { viewDate.setMonth(viewDate.getMonth() + o); render(); }
+    initApp();
+</script>
+</body>
+</html>
